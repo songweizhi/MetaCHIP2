@@ -79,6 +79,8 @@ How to install:
        install.packages("circlize")
        install.packages("ape")
 
+1. Type `pip3 install --upgrade MetaCHIP2` to get the latest version.
+
 1. :warning: If you clone the repository directly off GitHub you might end up with a version that is still under development.
 
 
