@@ -1,0 +1,22 @@
+
+######################### Instruction for installing Ranger-DTL2 #########################
+
+1. Download Ranger-DTL2 from one of the following links, depends on the system your are using.
+
+# Linux
+https://compbio.engr.uconn.edu/wp-content/uploads/sites/2447/2018/05/Linux.zip
+# Mac
+https://compbio.engr.uconn.edu/wp-content/uploads/sites/2447/2018/05/Mac.zip
+
+
+2. Decompress downloaded file by double-click. After you have the downloaded zip file decompressed, you will see a folder
+   named "SupplementaryPrograms". Add this folder to your system path with the following commands.
+   Remember to replace "/path/to/" with the path which points to the decompressed folder (either "Linux" or "Mac").
+
+# For Linux system
+export PATH=/path/to/Linux/SupplementaryPrograms:$PATH
+# For Mac system
+export PATH=/path/to/Mac/SupplementaryPrograms:$PATH
+
+
+##########################################################################################
