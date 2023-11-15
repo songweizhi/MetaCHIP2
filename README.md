@@ -6,6 +6,7 @@
 Publication:
 ---
 
++ In preparation
 + Contact: Weizhi Song (songwz03@gmail.com)
 + Department of Ocean Science, Hong Kong University of Science and Technology, Hong Kong
 
@@ -32,7 +33,9 @@ What has been changed:
 Change Log:
 ---
 
-* v2.0.0 (2023-09-06) - Initial release
+* v2.2.0 - module added: enrich
+* v2.1.0 - module added: tree
+* v2.0.0 - Initial release
 
 Dependencies:
 ---
@@ -50,6 +53,7 @@ Dependencies:
 [circlize](https://cran.r-project.org/web/packages/circlize/index.html).
 
 + Third-party software: 
+[GTDBTk](https://github.com/Ecogenomics/GTDBTk), 
 [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download),
 [MMseqs2](https://github.com/soedinglab/MMseqs2)(optional), 
 [MAFFT](https://mafft.cbrc.jp/alignment/software/),
@@ -61,9 +65,10 @@ How to install:
 
 1. Install MetaCHIP2 with Conda
  
-       conda create -n metachip_env
-       source activate metachip_env
+       conda create -n metachip2env
+       source activate metachip2env
        pip install MetaCHIP2
+       pip install gtdbtk
        conda install -c bioconda blast
        conda install -c bioconda mafft
        conda install -c bioconda fasttree

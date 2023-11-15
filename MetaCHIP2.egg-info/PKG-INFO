@@ -7,7 +7,6 @@ Author: Weizhi Song, Shan Zhang and Torsten Thomas
 Author-email: songwz03@gmail.com
 License: GPL3+
 Keywords: Bioinformatics Metagenomics HGT_detection
-Platform: UNKNOWN
 License-File: LICENSE.txt
 
 
@@ -17,6 +16,4 @@ MetaCHIP2: community-level HGT identification pipeline
 Weizhi Song (songwz03@gmail.com)
 Centre for Marine Science and Innovation (CMSI),
 University of New South Wales, Sydney, Australia
-
-
 

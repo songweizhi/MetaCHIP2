@@ -440,6 +440,7 @@ def tree(args):
 
     ######################################## root tree ########################################
 
+    print('Rooting inferred tree based on GTDB (r214) reference tree')
     with open(log_txt, 'a') as log_txt_handle:
         log_txt_handle.write('Root tree based on GTDB\n')
 
@@ -476,7 +477,6 @@ if __name__ == '__main__':
 conda activate gtdbtk-2.3.0
 export GTDBTK_DATA_PATH=/mnt/home-db/pub/gtdb/release214
 cd /home-user/wzsong/tmp/tree
-
 python3 tree.py -o gnm_5bac_5ar_get_tree_wd -i gnm_5bac_5ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
 python3 tree.py -o gnm_5bac_2ar_get_tree_wd -i gnm_5bac_2ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
 python3 tree.py -o gnm_5bac_1ar_get_tree_wd -i gnm_5bac_1ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
