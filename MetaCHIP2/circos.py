@@ -1,5 +1,9 @@
 import os
 import argparse
+import pandas as pd
+from pycirclize import Circos
+import matplotlib as mpl
+mpl.use('Agg')
 
 
 circos_usage = '''
@@ -8,119 +12,80 @@ circos_usage = '''
 MetaCHIP2 circos -o circos_1.pdf -i cir_plot_matrix.csv
 MetaCHIP2 circos -o circos_2.pdf -l detected_HGTs.txt -g grouping.txt
 
+# grouping.txt (tab separated)
+S2_sal_fde_bin1	c__Clostridia
+S2_sal_fde_bin2	c__Bacteroidia
+S2_sal_fde_bin6	c__Bacilli
+
 =======================================================================
 '''
 
 
-def sep_path_basename_ext(file_in):
-
-    # separate path and file name
-    f_path, file_name = os.path.split(file_in)
-    if f_path == '':
-        f_path = '.'
-
-    # separate file basename and extension
-    f_base, f_ext = os.path.splitext(file_name)
-
-    return f_path, f_base, f_ext
-
-
-def circos_plot_from_hgt_and_grouping(detected_hgts_txt, grouping_file, circos_HGT_R, pwd_plot_circos):
+def get_circos_matrix(grouping_file, detected_hgts_txt, hgt_matrix):
 
     # get genome to group dict
-    genome_to_group_dict = {}
+    gnm_to_group_dict = dict()
     for genome in open(grouping_file):
-        group_id2 = genome.strip().split(',')[0]
-        genome_name = genome.strip().split(',')[1]
-        genome_to_group_dict[genome_name] = group_id2
+        gnm_id = genome.strip().split('\t')[0]
+        group_id = genome.strip().split('\t')[1]
+        gnm_to_group_dict[gnm_id] = group_id
 
-    # define file name
-    f_path, f_base, f_ext = sep_path_basename_ext(pwd_plot_circos)
-    pwd_cir_plot_t1                 = '%s/%s_matrix_t1.txt'                % (f_path, f_base)
-    pwd_cir_plot_t1_sorted          = '%s/%s_matrix_t1_sorted.txt'         % (f_path, f_base)
-    pwd_cir_plot_t1_sorted_count    = '%s/%s_matrix_t1_sorted_count.txt'   % (f_path, f_base)
-    pwd_cir_plot_matrix_filename    = '%s/%s_matrix.txt'                   % (f_path, f_base)
-
-    transfers = []
+    grp_set = set()
     col_index = {}
+    d2r_hgt_num_dict = dict()
     for each in open(detected_hgts_txt):
         each_split = each.strip().split('\t')
         if each.startswith('Gene_1\tGene_2\tIdentity'):
             col_index = {key: i for i, key in enumerate(each_split)}
         else:
-            Direction = each_split[col_index['direction']]
-            if '%)' in Direction:
-                Direction = Direction.split('(')[0]
+            direction = each_split[col_index['direction']]
+            if '%)' in direction:
+                direction = direction.split('(')[0]
 
-            transfers.append(Direction)
-
-    tmp1 = open(pwd_cir_plot_t1, 'w')
-    all_group_id = []
-    for each_t in transfers:
-        each_t_split    = each_t.split('-->')
-        donor           = each_t_split[0]
-        recipient       = each_t_split[1]
-        donor_group     = genome_to_group_dict[donor]
-        recipient_group = genome_to_group_dict[recipient]
-        if donor_group not in all_group_id:
-            all_group_id.append(donor_group)
-        if recipient_group not in all_group_id:
-            all_group_id.append(recipient_group)
-        tmp1.write('%s,%s\n' % (donor_group, recipient_group))
-    tmp1.close()
-
-    os.system('cat %s | sort > %s' % (pwd_cir_plot_t1, pwd_cir_plot_t1_sorted))
-
-    current_t = ''
-    count = 0
-    tmp2 = open(pwd_cir_plot_t1_sorted_count, 'w')
-    for each_t2 in open(pwd_cir_plot_t1_sorted):
-        each_t2 = each_t2.strip()
-        if current_t == '':
-            current_t = each_t2
-            count += 1
-        elif current_t == each_t2:
-            count += 1
-        elif current_t != each_t2:
-            tmp2.write('%s,%s\n' % (current_t, count))
-            current_t = each_t2
-            count = 1
-    tmp2.write('%s,%s\n' % (current_t, count))
-    tmp2.close()
-
-    # read in count as dict
-    transfer_count = {}
-    for each_3 in open(pwd_cir_plot_t1_sorted_count):
-        each_3_split = each_3.strip().split(',')
-        key = '%s,%s' % (each_3_split[0], each_3_split[1])
-        value = each_3_split[2]
-        transfer_count[key] = value
-
-    all_group_id = sorted(all_group_id)
-
-    matrix_file = open(pwd_cir_plot_matrix_filename, 'w')
-    matrix_file.write('\t' + '\t'.join(all_group_id) + '\n')
-    for each_1 in all_group_id:
-        row = [each_1]
-        for each_2 in all_group_id:
-            current_key = '%s,%s' % (each_2, each_1)
-            if current_key not in transfer_count:
-                row.append('0')
+            direction_split = direction.split('-->')
+            gnm_d = direction_split[0]
+            gnm_r = direction_split[1]
+            grp_d = gnm_to_group_dict[gnm_d]
+            grp_r = gnm_to_group_dict[gnm_r]
+            grp_set.add(grp_d)
+            grp_set.add(grp_r)
+            key_grp_d_to_r = '%s_d2r_%s' % (grp_d, grp_r)
+            if key_grp_d_to_r not in d2r_hgt_num_dict:
+                d2r_hgt_num_dict[key_grp_d_to_r] = 1
             else:
-                row.append(transfer_count[current_key])
-        matrix_file.write('\t'.join(row) + '\n')
-    matrix_file.close()
+                d2r_hgt_num_dict[key_grp_d_to_r] += 1
 
-    # get plot with R
-    if len(all_group_id) > 1:
-        r_cmd = 'Rscript %s -m %s -s 11 -p %s' % (circos_HGT_R, pwd_cir_plot_matrix_filename, pwd_plot_circos)
-        print(r_cmd)
-        os.system(r_cmd)
+    grp_list_sorted = sorted([i for i in grp_set])
 
-    # rm tmp files
-    os.system('rm %s' % pwd_cir_plot_t1)
-    os.system('rm %s' % pwd_cir_plot_t1_sorted)
-    os.system('rm %s' % pwd_cir_plot_t1_sorted_count)
+    hgt_matrix_handle = open(hgt_matrix, 'w')
+    hgt_matrix_handle.write('\t' + '\t'.join(grp_list_sorted) + '\n')
+    for each_d_grp in grp_list_sorted:
+        num_list = [each_d_grp]
+        for each_r_grp in grp_list_sorted:
+            key_d_to_r = '%s_d2r_%s' % (each_d_grp, each_r_grp)
+            hgt_num = d2r_hgt_num_dict.get(key_d_to_r, 0)
+            num_list.append(str(hgt_num))
+        hgt_matrix_handle.write('\t'.join(num_list) + '\n')
+    hgt_matrix_handle.close()
+
+
+def pycircos(data_matrix, sep_symbol, plot_out):
+
+    matrix_df = pd.read_csv(data_matrix, sep=sep_symbol, header=0, index_col=0)
+    interval = round((matrix_df.max()).max()/10)*5                  # get tick interval
+    circos = Circos.initialize_from_matrix(matrix_df,
+                                           start=-265,              # Plot start degree (-360 <= start < end <= 360)
+                                           end=95,                  # Plot end degree (-360 <= start < end <= 360)
+                                           space=1,                 # Space degree(s) between sector
+                                           r_lim=(90, 95),          # Outer track radius limit region (0 - 100)
+                                           cmap="tab10",            # Colormap assigned to each outer track and link.
+                                           # order='desc',          # asc, desc; sort in ascending(or descending) order by node size.
+                                           ticks_interval=interval, # Ticks interval. If None, ticks are not plotted.
+                                           ticks_kws=dict(label_size=3.5, label_orientation="vertical"),    # font size of tick labels
+                                           label_kws=dict(size=6, orientation="vertical"),
+                                           link_kws=dict(direction=1, color='white', ec="black", lw=0))
+    fig = circos.plotfig()
+    fig.savefig(plot_out, dpi=100)
 
 
 def circos(args):
@@ -128,21 +93,18 @@ def circos(args):
     input_matrix        = args['i']
     detected_hgts_txt   = args['l']
     grouping_file       = args['g']
-    font_size           = args['s']
     output_plot         = args['o']
-
-    # get path to circos_HGT.R
-    current_file_path   = '/'.join(os.path.realpath(__file__).split('/')[:-1])
-    circos_HGT_R        = '%s/circos_HGT.R' % current_file_path
 
     # plot with data matrix
     if (input_matrix is not None) and (detected_hgts_txt is None) and (grouping_file is None):
-        os.system('Rscript %s -m %s -s %s -p %s' % (circos_HGT_R, input_matrix, font_size, output_plot))
-        print('Done, plot exported to %s' % output_plot)
+        pycircos(input_matrix, '\t', output_plot)
 
     # plot with detected_hgts_txt and grouping_file
     elif (input_matrix is None) and (detected_hgts_txt is not None) and (grouping_file is not None):
-        circos_plot_from_hgt_and_grouping(detected_hgts_txt, grouping_file, circos_HGT_R, output_plot)
+        hgt_matrix = '%s.matrix.txt' % output_plot
+        get_circos_matrix(grouping_file, detected_hgts_txt, hgt_matrix)
+        pycircos(hgt_matrix, '\t', output_plot)
+
     else:
         print('Please refers to the example commands for usage, program exited!')
         exit()
@@ -155,21 +117,6 @@ if __name__ == '__main__':
     parser.add_argument('-i',   required=False, default=None,         help='input matrix')
     parser.add_argument('-l',   required=False, default=None,         help='MetaCHIP produced detected_HGTs.txt')
     parser.add_argument('-g',   required=False, default=None,         help='grouping file')
-    parser.add_argument('-s',   required=False, type=int, default=12, help='font size, default: 12')
     parser.add_argument('-o',   required=True,                        help='output plot')
     args = vars(parser.parse_args())
     circos(args)
-
-
-'''
-
-cd /Users/songweizhi/Desktop
-MetaCHIP2 circos -o circos_f.pdf -s 11 -l detected_HGTs.txt -g Bacilli_plus_78_clade_f.txt
-MetaCHIP2 circos -o circos_g.pdf -s 11 -l detected_HGTs.txt -g Bacilli_plus_78_clade.txt
-MetaCHIP2 circos -o circos_f2.pdf -s 11 -i circos_f_matrix.txt
-MetaCHIP2 circos -o circos_g2.pdf -s 11 -i circos_g_matrix.txt
-
-cd /Users/songweizhi/Desktop
-Rscript /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/circos_HGT.R -m cir_plot_matrix.csv -p cir_plot_matrix.pdf -s 11
-
-'''

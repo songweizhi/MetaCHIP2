@@ -5,3 +5,6 @@ scipy
 reportlab
 ete3
 DendroPy
+pycirclize
+pandas
+pytz

@@ -33,8 +33,9 @@ What has been changed:
 Change Log:
 ---
 
-* v2.2.0 - module added: enrich
-* v2.1.0 - module added: tree
+* v2.3.0 - module added: `circos`
+* v2.2.0 - module added: `enrich`
+* v2.1.0 - module added: `tree`
 * v2.0.0 - Initial release
 
 Dependencies:
@@ -46,11 +47,6 @@ Dependencies:
 [SciPy](https://www.scipy.org),
 [Matplotlib](http://matplotlib.org) and 
 [ETE3](http://etetoolkit.org).
-
-+ R packages: 
-[optparse](https://cran.r-project.org/web/packages/optparse/index.html),
-[ape](https://cran.r-project.org/web/packages/ape/index.html) and 
-[circlize](https://cran.r-project.org/web/packages/circlize/index.html).
 
 + Third-party software: 
 [GTDBTk](https://github.com/Ecogenomics/GTDBTk), 
@@ -65,19 +61,13 @@ How to install:
 
 1. Install MetaCHIP2 with Conda
  
-       conda create -n metachip2env
+       conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.3.2
        source activate metachip2env
        pip install MetaCHIP2
-       pip install gtdbtk
        conda install -c bioconda blast
-       conda install -c bioconda mafft
-       conda install -c bioconda fasttree
+       conda install -c bioconda diamond
        conda install -c bioconda mmseqs2
        conda install -c conda-forge r-base
-       R
-       install.packages("optparse")
-       install.packages("circlize")
-       install.packages("ape")
 
 1. Type `pip3 install --upgrade MetaCHIP2` to get the latest version.
 

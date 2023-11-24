@@ -18,14 +18,10 @@ MetaCHIP2/circos.py
 MetaCHIP2/circos_HGT.R
 MetaCHIP2/detect.py
 MetaCHIP2/enrich.py
-MetaCHIP2/infer.py
+MetaCHIP2/make_soft_link_All_data2.py
 MetaCHIP2/prokka.py
-MetaCHIP2/pycircos.py
 MetaCHIP2/stats.py
-MetaCHIP2/tmp.py
-MetaCHIP2/tmp_2.py
-MetaCHIP2/tmp_3.py
-MetaCHIP2/tmp_4.py
+MetaCHIP2/tmp_1.py
 MetaCHIP2/tree.py
 MetaCHIP2.egg-info/PKG-INFO
 MetaCHIP2.egg-info/SOURCES.txt

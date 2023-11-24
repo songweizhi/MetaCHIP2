@@ -1,8 +1,6 @@
 #!python
 
-# Copyright (C) 2017, Weizhi Song, Shan Zhang and Torsten Thomas.
-# songwz03@gmail.com, shan.zhang@unsw.edu.au and t.thomas@unsw.edu.au
-
+# Copyright (C) 2017, Shan Zhang, Torsten Thomas and Weizhi Song (songwz03@gmail.com).
 # MetaCHIP2 is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -59,15 +57,14 @@ if __name__ == '__main__':
     warnings.filterwarnings('ignore')
 
     # parse options
-    if (len(sys.argv) == 1) or (sys.argv[1] in ['-h', '-help', '--help', '-H', '-Help', '--Help']):
+    if (len(sys.argv) == 1) or (sys.argv[1] in ['h', 'H', '--h', '--H', '-h', '-help', '--help', '-H', '-Help', '--Help']):
         print_main_help()
         sys.exit(0)
 
     elif sys.argv[1] == 'detect':
         from MetaCHIP2 import detect
         detect_parser = subparsers.add_parser('detect', description='detect HGT', usage=detect.detect_usage)
-        detect_parser.add_argument('-p',        required=True,                         help='output file prefix')
-        detect_parser.add_argument('-o',        required=False, default=None,          help='output folder location (default: current working directory)')
+        detect_parser.add_argument('-o',        required=True,                         help='output folder')
         detect_parser.add_argument('-i',        required=True,                         help='input gbk folder')
         detect_parser.add_argument('-x',        required=False, default='gbk',         help='file extension, default: gbk')
         detect_parser.add_argument('-s',        required=True,                         help='species tree of input genomes')
@@ -75,7 +72,7 @@ if __name__ == '__main__':
         detect_parser.add_argument('-r',        required=False, default=None,          help='grouping rank, e.g., p, c, o, f, g, pcofg or pco...')
         detect_parser.add_argument('-g',        required=False, default=None,          help='grouping file')
         detect_parser.add_argument('-b',        required=False, default=None,          help='all-vs-all blastn results (e.g., from a previous run)')
-        detect_parser.add_argument('-mmseqs',   required=False, action="store_true",   help='speed-up all-vs-all blastn using mmseqs')
+        detect_parser.add_argument('-m',        required=False, action="store_true",   help='speed-up all-vs-all blastn using mmseqs')
         detect_parser.add_argument('-np',       required=False, action="store_true",   help='skip plotting flanking regions')
         detect_parser.add_argument('-nc',       required=False, action="store_true",   help='skip end-break and contig-match check, not recommend for metagenome-assembled genomes')
         detect_parser.add_argument('-t',        required=False, type=int, default=1,   help='number of threads, default: 1')
@@ -84,29 +81,6 @@ if __name__ == '__main__':
         detect_parser.add_argument('-f',        required=False, action="store_true",   help='force overwrite previous results')
         args = vars(parser.parse_args())
         detect.detect(args)
-
-    elif sys.argv[1] == 'infer':
-        from MetaCHIP2 import infer
-        InferTree_parser = subparsers.add_parser('infer', description='infer tree', usage=infer.infer_usage)
-        InferTree_parser.add_argument('-i', required=True,                       help='genome folder')
-        InferTree_parser.add_argument('-x', required=False, default='fna',       help='genome file extension, default: fna')
-        InferTree_parser.add_argument('-o', required=True,                       help='output folder')
-        InferTree_parser.add_argument('-t', required=False, type=int, default=1, help='number of threads')
-        InferTree_parser.add_argument('-f', required=False, action="store_true", help='force overwrite existing results')
-        args = vars(parser.parse_args())
-        infer.infer(args)
-
-    elif sys.argv[1] == 'root':
-        from MetaCHIP2 import RootTree
-        RootTree_parser = subparsers.add_parser('root', description='root tree', usage=RootTree.RootTree_usage)
-        RootTree_parser.add_argument('-db',  required=True,                  help='GTDB database files')
-        RootTree_parser.add_argument('-cb',  required=False, default=None,   help='GTDB classifications for bacterial genomes')
-        RootTree_parser.add_argument('-ca',  required=False, default=None,   help='GTDB classifications for archaeal genomes')
-        RootTree_parser.add_argument('-tb',  required=False, default=None,   help='GTDB-Tk inferred bacterial tree')
-        RootTree_parser.add_argument('-ta',  required=False, default=None,   help='GTDB-Tk inferred archaeal tree')
-        RootTree_parser.add_argument('-out', required=False, default=None,   help='rooted output tree')
-        args = vars(parser.parse_args())
-        RootTree.RootTree(args)
 
     elif sys.argv[1] == 'prokka':
         from MetaCHIP2 import prokka
@@ -126,14 +100,13 @@ if __name__ == '__main__':
         circos_parser.add_argument('-i',   required=False, default=None,         help='input matrix')
         circos_parser.add_argument('-l',   required=False, default=None,         help='MetaCHIP produced detected_HGTs.txt')
         circos_parser.add_argument('-g',   required=False, default=None,         help='grouping file')
-        circos_parser.add_argument('-s',   required=False, type=int, default=12, help='font size, default: 12')
         circos_parser.add_argument('-o',   required=True,                        help='output plot')
         args = vars(parser.parse_args())
         circos.circos(args)
 
     elif sys.argv[1] == 'tree':
         from MetaCHIP2 import tree
-        tree_parser = subparsers.add_parser('tree', description='tree', usage=tree.tree_usage)
+        tree_parser = subparsers.add_parser('tree', description='Infer species tree of input genomes', usage=tree.tree_usage)
         tree_parser.add_argument('-i',  required=True,                          help='genome folder')
         tree_parser.add_argument('-x',  required=False, default='fna',          help='genome file extension, default: fna')
         tree_parser.add_argument('-c',  required=False, default=None,           help='taxonomic classification of input genomes')
@@ -148,11 +121,11 @@ if __name__ == '__main__':
         from MetaCHIP2 import enrich
         enrich_parser = subparsers.add_parser('enrich', description='enrich', usage=enrich.enrich_usage)
         enrich_parser.add_argument('-o',       required=True,                              help='output plot')
-        enrich_parser.add_argument('-faa',     required=True,                              help='faa files of MAGs, produced by Prokka')
+        enrich_parser.add_argument('-faa',     required=True,                              help='folder of faa files, produced by Prokka')
         enrich_parser.add_argument('-x',       required=False, default='faa',              help='file extension, default: faa')
         enrich_parser.add_argument('-hgt1',    required=True,                              help='amino acid sequences of HGTs, required')
         enrich_parser.add_argument('-hgt2',    required=False, default=None,               help='amino acid sequences of HGTs, e.g., predicted with a different approach, optional')
-        enrich_parser.add_argument('-db_dir',  required=True,                              help='COG_db_dir')
+        enrich_parser.add_argument('-db',      required=True,                              help='COG_db_dir')
         enrich_parser.add_argument('-diamond', required=False, action='store_true',        help='run diamond (for big dataset), default is NCBI blastp')
         enrich_parser.add_argument('-t',       required=False, type=int, default=1,        help='number of threads')
         enrich_parser.add_argument('-e',       required=False, default=0.001, type=float,  help='evalue cutoff, default: 0.001')
@@ -179,7 +152,6 @@ shan88
 pip install --upgrade MetaCHIP2
 
 '''
-
 
 to_do = '''
 

@@ -1,5 +1,8 @@
-2.2.4
+2.3.8
 - bug fixing
+
+2.3.0
+- new module added: circos
 
 2.2.0
 - new module added: enrich

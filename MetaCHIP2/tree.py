@@ -321,13 +321,13 @@ def RootTree(db_dir, user_gnm_taxon, user_gnm_tree_bac, user_gnm_tree_ar, rooted
 
 def tree(args):
 
-    input_gnm_dir           = args['i']
-    file_extension          = args['x']
-    output_dir              = args['o']
-    num_threads             = args['t']
-    force_overwrite         = args['f']
-    db_dir                  = args['db']
-    gnm_tax_txt             = args['c']
+    input_gnm_dir   = args['i']
+    file_extension  = args['x']
+    output_dir      = args['o']
+    num_threads     = args['t']
+    force_overwrite = args['f']
+    db_dir          = args['db']
+    gnm_tax_txt     = args['c']
 
     ######################################## define file name ########################################
 
@@ -342,13 +342,13 @@ def tree(args):
     msa_bac120                      = '%s/align/metachip2.bac120.user_msa.fasta'    % tmp_dir
     msa_ar53_gz                     = '%s/align/metachip2.ar53.user_msa.fasta.gz'   % tmp_dir
     msa_ar53                        = '%s/align/metachip2.ar53.user_msa.fasta'      % tmp_dir
-    inferred_bac120_tree            = '%s/bac120.unrooted.tree'           % tmp_dir
-    inferred_ar53_tree              = '%s/ar53.unrooted.tree'             % tmp_dir
-    gtdbtk_classify_wf_stdout_txt   = '%s/gtdbtk_classify_wf_stdout.txt'            % tmp_dir
-    gtdbtk_identify_stdout_txt      = '%s/gtdbtk_identify_stdout.txt'               % tmp_dir
-    gtdbtk_align_stdout_txt         = '%s/gtdbtk_align_stdout.txt'                  % tmp_dir
-    gtdbtk_infer_bac_stdout_txt     = '%s/gtdbtk_infer_bac_stdout.txt'              % tmp_dir
-    gtdbtk_infer_ar_stdout_txt      = '%s/gtdbtk_infer_ar_stdout.txt'               % tmp_dir
+    inferred_bac120_tree            = '%s/bac120.unrooted.tree'                     % tmp_dir
+    inferred_ar53_tree              = '%s/ar53.unrooted.tree'                       % tmp_dir
+    gtdbtk_classify_wf_stdout_txt   = '%s/gtdbtk_classify_wf.log'                   % tmp_dir
+    gtdbtk_identify_stdout_txt      = '%s/gtdbtk_identify.log'                      % tmp_dir
+    gtdbtk_align_stdout_txt         = '%s/gtdbtk_align.log'                         % tmp_dir
+    gtdbtk_infer_bac_stdout_txt     = '%s/gtdbtk_infer_bac.log'                     % tmp_dir
+    gtdbtk_infer_ar_stdout_txt      = '%s/gtdbtk_infer_ar.log'                      % tmp_dir
     user_tree_rooted_bac            = '%s/rooted_species_tree_bac.tree'             % tmp_dir
     user_tree_rooted_ar             = '%s/rooted_species_tree_ar.tree'              % tmp_dir
     user_tree_rooted                = '%s/rooted_species_tree.tree'                 % output_dir
@@ -358,7 +358,7 @@ def tree(args):
     ######################################### check db files #########################################
 
     # check dependencies
-    check_dependencies(['gtdbtk'])
+    check_dependencies(['gtdbtk', 'hmmsearch', 'pplacer'])
 
     # check whether db file exist
     unfound_inputs = []
@@ -369,7 +369,7 @@ def tree(args):
         for each_unfound in unfound_inputs:
             print('%s not found' % each_unfound)
         exit()
-    print('All needed db files are detected!')
+    print('Database files found!')
 
     ##################################################################################################
 
@@ -402,6 +402,7 @@ def tree(args):
             os.system('cat %s > %s' % (gtdb_bac120_summary_tsv, gtdb_summary_tsv))
         else:
             print('No classification results detected, program exited!')
+            print('There is something wrong with gtdbtk, please makes sure it has been installed successfully')
             exit()
 
     else:
@@ -422,6 +423,7 @@ def tree(args):
     # infer tree
     if (os.path.isfile(msa_bac120_gz) is False) and (os.path.isfile(msa_ar53_gz) is False):
         print('Both %s and %s are not found, program exited!' % (msa_bac120_gz, msa_ar53_gz))
+        print('There is something wrong with gtdbtk, please makes sure it has been installed successfully')
         exit()
 
     # infer bac tree

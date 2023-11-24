@@ -14,10 +14,11 @@ __long_description__ = '''
 
 MetaCHIP2: community-level HGT identification pipeline
 
-Weizhi Song (songwz03@gmail.com)
-Centre for Marine Science and Innovation (CMSI),
-University of New South Wales, Sydney, Australia
-
+Dr Shan Zhang
+Dr Weizhi Song (songwz03@gmail.com)
+Department of Ocean Science (OCES), 
+Hong Kong University of Science and Technology (HKUST), 
+Hong Kong
 '''
 
 
@@ -25,7 +26,7 @@ setup(name="MetaCHIP2",
       version=version(),
       long_description=__long_description__,
       license="GPL3+",
-      author="Weizhi Song, Shan Zhang and Torsten Thomas",
+      author="Shan Zhang, Torsten Thomas and Weizhi Song",
       author_email="songwz03@gmail.com",
       keywords="Bioinformatics Metagenomics HGT_detection",
       description="HGT detection pipeline",
@@ -33,6 +34,6 @@ setup(name="MetaCHIP2",
       packages=['MetaCHIP2'],
       package_data={'': ['*.r', '*.R', '*.py', 'VERSION', 'Ranger-DTL.mac', 'Ranger-DTL.linux']},
       include_package_data=True,
-      install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'reportlab', 'ete3', 'DendroPy'],
+      install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'reportlab', 'ete3', 'DendroPy', 'pycirclize', 'pandas', 'pytz'],
       scripts=['bin/MetaCHIP2'])
 

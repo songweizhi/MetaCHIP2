@@ -7,11 +7,13 @@ import warnings
 import argparse
 import itertools
 import numpy as np
+import pandas as pd
 from ete3 import Tree
 from time import sleep
 import multiprocessing as mp
 from datetime import datetime
 from packaging import version
+from pycirclize import Circos
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from string import ascii_uppercase
@@ -26,15 +28,14 @@ warnings.filterwarnings("ignore")
 
 
 detect_usage = '''
-======================================= detect example commands =======================================
+======================================== detect example commands ========================================
 
 # requires: blast+, mafft, fasttree, mmseqs2 (optional) 
 
-MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -p demo -r pcofg -m
-MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -p demo -r pco
-MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -p demo -r p -b blastn_op
+MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -r pco -m
+MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -r pco -b blastn_op
 
-=======================================================================================================
+=========================================================================================================
 '''
 
 
@@ -781,7 +782,7 @@ def set_contig_track_features(gene_contig, candidate_list, HGT_iden, feature_set
             feature_set.add_feature(feature, color=color, label=True, sigil='ARROW', arrowshaft_height=0.5, arrowhead_length=0.4, label_color=label_color, label_size=label_size, label_angle=label_angle, label_position="middle")
 
 
-def get_gbk_blast_act2(arg_list):
+def get_gbk_blast_act(arg_list):
 
     match                                   = arg_list[0]
     pwd_gbk_folder                          = arg_list[1]
@@ -808,37 +809,37 @@ def get_gbk_blast_act2(arg_list):
     os.mkdir('%s/%s' % (plot_dir, folder_name))
 
     dict_value_list = []
-    # Extract gbk and fasta files for gene 1
-    for genome_1_record in SeqIO.parse(pwd_gbk_1, 'genbank'):
-        for gene_1_f in genome_1_record.features:
-            if 'locus_tag' in gene_1_f.qualifiers:
-                if gene_1 in gene_1_f.qualifiers["locus_tag"]:
-                    dict_value_list.append(
-                        [gene_1, int(gene_1_f.location.start), int(gene_1_f.location.end), gene_1_f.location.strand,
-                         len(genome_1_record.seq)])
-                    pwd_gene_1_gbk_file = '%s/%s/%s.gbk' % (plot_dir, folder_name, gene_1)
-                    pwd_gene_1_fasta_file = '%s/%s/%s.fasta' % (plot_dir, folder_name, gene_1)
-                    SeqIO.write(genome_1_record, pwd_gene_1_fasta_file, 'fasta')
+    if (No_Eb_Check is False) or (plt_flk_region is True):
 
-                    if plt_flk_region is True:
-                        SeqIO.write(genome_1_record, pwd_gene_1_gbk_file, 'genbank')
-                        get_flanking_region(pwd_gene_1_gbk_file, gene_1, flanking_length)
+        # Extract gbk and fasta files for gene 1
+        for genome_1_record in SeqIO.parse(pwd_gbk_1, 'genbank'):
+            for gene_1_f in genome_1_record.features:
+                if 'locus_tag' in gene_1_f.qualifiers:
+                    if gene_1 in gene_1_f.qualifiers["locus_tag"]:
+                        dict_value_list.append([gene_1, int(gene_1_f.location.start), int(gene_1_f.location.end), gene_1_f.location.strand, len(genome_1_record.seq)])
+                        pwd_gene_1_gbk_file = '%s/%s/%s.gbk' % (plot_dir, folder_name, gene_1)
+                        pwd_gene_1_fasta_file = '%s/%s/%s.fasta' % (plot_dir, folder_name, gene_1)
+                        SeqIO.write(genome_1_record, pwd_gene_1_fasta_file, 'fasta')
 
-    # Extract gbk and fasta files for gene 2
-    for genome_2_record in SeqIO.parse(pwd_gbk_2, 'genbank'):
-        for gene_2_f in genome_2_record.features:
-            if 'locus_tag' in gene_2_f.qualifiers:
-                if gene_2 in gene_2_f.qualifiers["locus_tag"]:
-                    dict_value_list.append(
-                        [gene_2, int(gene_2_f.location.start), int(gene_2_f.location.end), gene_2_f.location.strand,
-                         len(genome_2_record.seq)])
-                    pwd_gene_2_gbk_file   = '%s/%s/%s.gbk'   % (plot_dir, folder_name, gene_2)
-                    pwd_gene_2_fasta_file = '%s/%s/%s.fasta' % (plot_dir, folder_name, gene_2)
-                    SeqIO.write(genome_2_record, pwd_gene_2_fasta_file, 'fasta')
+                        if plt_flk_region is True:
+                            SeqIO.write(genome_1_record, pwd_gene_1_gbk_file, 'genbank')
+                            get_flanking_region(pwd_gene_1_gbk_file, gene_1, flanking_length)
 
-                    if plt_flk_region is True:
-                        SeqIO.write(genome_2_record, pwd_gene_2_gbk_file, 'genbank')
-                        get_flanking_region(pwd_gene_2_gbk_file, gene_2, flanking_length)
+        # Extract gbk and fasta files for gene 2
+        for genome_2_record in SeqIO.parse(pwd_gbk_2, 'genbank'):
+            for gene_2_f in genome_2_record.features:
+                if 'locus_tag' in gene_2_f.qualifiers:
+                    if gene_2 in gene_2_f.qualifiers["locus_tag"]:
+                        dict_value_list.append(
+                            [gene_2, int(gene_2_f.location.start), int(gene_2_f.location.end), gene_2_f.location.strand,
+                             len(genome_2_record.seq)])
+                        pwd_gene_2_gbk_file   = '%s/%s/%s.gbk'   % (plot_dir, folder_name, gene_2)
+                        pwd_gene_2_fasta_file = '%s/%s/%s.fasta' % (plot_dir, folder_name, gene_2)
+                        SeqIO.write(genome_2_record, pwd_gene_2_fasta_file, 'fasta')
+
+                        if plt_flk_region is True:
+                            SeqIO.write(genome_2_record, pwd_gene_2_gbk_file, 'genbank')
+                            get_flanking_region(pwd_gene_2_gbk_file, gene_2, flanking_length)
 
     ############################## check whether full length or end match ##############################
 
@@ -1167,16 +1168,16 @@ def Ranger_worker(arg_list):
     pwd_ranger_outputs_folder   = arg_list[4]
 
     # define Ranger-DTL input file name
-    each_paired_tree_concate = '___'.join(each_paired_tree)
-    pwd_gene_tree_newick                                = '%s/%s_gene.newick'                               % (pwd_tree_folder, each_paired_tree_concate)
-    pwd_species_tree_newick                             = '%s/%s_species.newick'                            % (pwd_tree_folder, each_paired_tree_concate)
-    pwd_species_tree_newick_no_hyphen_in_branch_length  = '%s/%s_species_no_hyphen_in_branch_length.newick' % (pwd_tree_folder, each_paired_tree_concate)
-    pwd_gene_tree_newick_no_hyphen_in_branch_length     = '%s/%s_gene_no_hyphen_in_branch_length.newick'    % (pwd_tree_folder, each_paired_tree_concate)
+    tree_concate = '___'.join(each_paired_tree)
+    pwd_gene_tree_newick                                = '%s/%s_gene.newick'                               % (pwd_tree_folder, tree_concate)
+    pwd_species_tree_newick                             = '%s/%s_species.newick'                            % (pwd_tree_folder, tree_concate)
+    pwd_species_tree_newick_no_hyphen_in_branch_length  = '%s/%s_species_no_hyphen_in_branch_length.newick' % (pwd_tree_folder, tree_concate)
+    pwd_gene_tree_newick_no_hyphen_in_branch_length     = '%s/%s_gene_no_hyphen_in_branch_length.newick'    % (pwd_tree_folder, tree_concate)
 
     if (os.path.isfile(pwd_species_tree_newick) is True) and (os.path.isfile(pwd_gene_tree_newick) is True):
 
-        ranger_inputs_file_name     = each_paired_tree_concate + '.txt'
-        ranger_outputs_file_name    = each_paired_tree_concate + '_ranger_output.txt'
+        ranger_inputs_file_name     = tree_concate + '.txt'
+        ranger_outputs_file_name    = tree_concate + '_ranger_output.txt'
         pwd_ranger_inputs           = '%s/%s' % (pwd_ranger_inputs_folder, ranger_inputs_file_name)
         pwd_ranger_outputs          = '%s/%s' % (pwd_ranger_outputs_folder, ranger_outputs_file_name)
 
@@ -1284,203 +1285,69 @@ def extract_donor_recipient_sequences(pwd_combined_ffn, recipient_gene_list, pwd
     pwd_recipient_gene_seq_faa_handle.close()
 
 
-def Get_circlize_plot(multi_level_detection, pwd_candidates_file_PG_normal_txt, genome_to_taxon_dict, circos_HGT_R, pwd_plot_circos, taxon_rank, pwd_MetaCHIP_op_folder):
+def get_circos_matrix(grouping_file, detected_hgts_txt, hgt_matrix):
 
-    rank_abbre_dict              = {'d': 'domain',  'p': 'phylum', 'c': 'class',   'o': 'order',  'f': 'family',   'g': 'genus',  's': 'species', 'x': 'specified group'}
-    pwd_cir_plot_t1              = '%s/HGTs_among_%s_t1.txt'                % (pwd_MetaCHIP_op_folder, rank_abbre_dict[taxon_rank])
-    pwd_cir_plot_t1_sorted       = '%s/HGTs_among_%s_t1_sorted.txt'         % (pwd_MetaCHIP_op_folder, rank_abbre_dict[taxon_rank])
-    pwd_cir_plot_t1_sorted_count = '%s/HGTs_among_%s_t1_sorted_count.txt'   % (pwd_MetaCHIP_op_folder, rank_abbre_dict[taxon_rank])
-    pwd_cir_plot_matrix_filename = '%s/HGTs_among_%s.txt'                   % (pwd_MetaCHIP_op_folder, rank_abbre_dict[taxon_rank])
+    # get genome to group dict
+    gnm_to_group_dict = dict()
+    for genome in open(grouping_file):
+        gnm_id = genome.strip().split('\t')[0]
+        group_id = genome.strip().split('\t')[1]
+        gnm_to_group_dict[gnm_id] = group_id
 
-    name2taxon_dict = {}
-    transfers = []
-    for each in open(pwd_candidates_file_PG_normal_txt):
-        if not each.startswith('Gene_1'):
-            each_split  = each.strip().split('\t')
-            Gene_1      = each_split[0]
-            Gene_2      = each_split[1]
-            Genome_1    = '_'.join(Gene_1.split('_')[:-1])
-            Genome_2    = '_'.join(Gene_2.split('_')[:-1])
+    grp_set = set()
+    col_index = {}
+    d2r_hgt_num_dict = dict()
+    for each in open(detected_hgts_txt):
+        each_split = each.strip().split('\t')
+        if each.startswith('Gene_1\tGene_2\tIdentity'):
+            col_index = {key: i for i, key in enumerate(each_split)}
+        else:
+            direction = each_split[col_index['direction']]
+            if '%)' in direction:
+                direction = direction.split('(')[0]
 
-            if Genome_1 in genome_to_taxon_dict:
-                Genome_1_taxon = '_'.join(genome_to_taxon_dict[Genome_1].split(' '))
+            direction_split = direction.split('-->')
+            gnm_d = direction_split[0]
+            gnm_r = direction_split[1]
+            grp_d = gnm_to_group_dict[gnm_d]
+            grp_r = gnm_to_group_dict[gnm_r]
+            grp_set.add(grp_d)
+            grp_set.add(grp_r)
+            key_grp_d_to_r = '%s_d2r_%s' % (grp_d, grp_r)
+            if key_grp_d_to_r not in d2r_hgt_num_dict:
+                d2r_hgt_num_dict[key_grp_d_to_r] = 1
             else:
-                Genome_1_taxon = '%s_' % taxon_rank
+                d2r_hgt_num_dict[key_grp_d_to_r] += 1
 
-            if Genome_2 in genome_to_taxon_dict:
-                Genome_2_taxon = '_'.join(genome_to_taxon_dict[Genome_2].split(' '))
-            else:
-                Genome_2_taxon = '%s_' % taxon_rank
+    grp_list_sorted = sorted([i for i in grp_set])
 
-            Direction = each_split[5]
-            if multi_level_detection == True:
-                Direction = each_split[6]
-
-            if '%)' in Direction:
-                Direction = Direction.split('(')[0]
-
-            if Genome_1 not in name2taxon_dict:
-                name2taxon_dict[Genome_1] = Genome_1_taxon
-            if Genome_2 not in name2taxon_dict:
-                name2taxon_dict[Genome_2] = Genome_2_taxon
-            transfers.append(Direction)
-
-    tmp1 = open(pwd_cir_plot_t1, 'w')
-    all_group_id = []
-    for each_t in transfers:
-        each_t_split    = each_t.split('-->')
-        donor           = each_t_split[0]
-        recipient       = each_t_split[1]
-        donor_id        = name2taxon_dict[donor]
-        recipient_id    = name2taxon_dict[recipient]
-        if donor_id not in all_group_id:
-            all_group_id.append(donor_id)
-        if recipient_id not in all_group_id:
-            all_group_id.append(recipient_id)
-        tmp1.write('%s,%s\n' % (donor_id, recipient_id))
-    tmp1.close()
-
-    os.system('cat %s | sort > %s' % (pwd_cir_plot_t1, pwd_cir_plot_t1_sorted))
-
-    tmp2 = open(pwd_cir_plot_t1_sorted_count, 'w')
-    count = 0
-    current_t = ''
-    for each_t2 in open(pwd_cir_plot_t1_sorted):
-        each_t2 = each_t2.strip()
-        if current_t == '':
-            current_t = each_t2
-            count += 1
-        elif current_t == each_t2:
-            count += 1
-        elif current_t != each_t2:
-            tmp2.write('%s,%s\n' % (current_t, count))
-            current_t = each_t2
-            count = 1
-    tmp2.write('%s,%s\n' % (current_t, count))
-    tmp2.close()
-
-    # read in count as dict
-    transfer_count = {}
-    for each_3 in open(pwd_cir_plot_t1_sorted_count):
-        each_3_split = each_3.strip().split(',')
-        key = '%s,%s' % (each_3_split[0], each_3_split[1])
-        value = each_3_split[2]
-        transfer_count[key] = value
-
-    all_group_id = sorted(all_group_id)
-
-    matrix_file = open(pwd_cir_plot_matrix_filename, 'w')
-    matrix_file.write('\t' + '\t'.join(all_group_id) + '\n')
-    for each_1 in all_group_id:
-        row = [each_1]
-        for each_2 in all_group_id:
-            current_key = '%s,%s' % (each_2, each_1)
-            if current_key not in transfer_count:
-                row.append('0')
-            else:
-                row.append(transfer_count[current_key])
-        matrix_file.write('\t'.join(row) + '\n')
-    matrix_file.close()
-
-    # get plot with R
-    if len(all_group_id) == 1:
-        print('Too less group (1), plot skipped')
-    elif 1 < len(all_group_id) <= 200:
-        os.system('Rscript %s -m %s -p %s' % (circos_HGT_R, pwd_cir_plot_matrix_filename, pwd_plot_circos))
-    else:
-        print('Too many groups (>200), plot skipped')
-
-    # rm tmp files
-    os.system('rm %s' % pwd_cir_plot_t1)
-    os.system('rm %s' % pwd_cir_plot_t1_sorted)
-    os.system('rm %s' % pwd_cir_plot_t1_sorted_count)
+    hgt_matrix_handle = open(hgt_matrix, 'w')
+    hgt_matrix_handle.write('\t' + '\t'.join(grp_list_sorted) + '\n')
+    for each_d_grp in grp_list_sorted:
+        num_list = [each_d_grp]
+        for each_r_grp in grp_list_sorted:
+            key_d_to_r = '%s_d2r_%s' % (each_d_grp, each_r_grp)
+            hgt_num = d2r_hgt_num_dict.get(key_d_to_r, 0)
+            num_list.append(str(hgt_num))
+        hgt_matrix_handle.write('\t'.join(num_list) + '\n')
+    hgt_matrix_handle.close()
 
 
-def Get_circlize_plot_customized_grouping(multi_level_detection, pwd_candidates_file_PG_normal_txt, genome_to_group_dict, circos_HGT_R, pwd_plot_circos, pwd_MetaCHIP_op_folder):
+def pycircos(data_matrix, sep_symbol, plot_out):
 
-    pwd_cir_plot_t1 =              '%s/cir_plot_t1.txt'              % pwd_MetaCHIP_op_folder
-    pwd_cir_plot_t1_sorted =       '%s/cir_plot_t1_sorted.txt'       % pwd_MetaCHIP_op_folder
-    pwd_cir_plot_t1_sorted_count = '%s/cir_plot_t1_sorted_count.txt' % pwd_MetaCHIP_op_folder
-    pwd_cir_plot_matrix_filename = '%s/cir_plot_matrix.csv'          % pwd_MetaCHIP_op_folder
-
-    transfers = []
-    for each in open(pwd_candidates_file_PG_normal_txt):
-        if not each.startswith('Gene_1'):
-            each_split = each.strip().split('\t')
-            Direction = each_split[5]
-            if multi_level_detection == True:
-                Direction = each_split[6]
-
-            if '%)' in Direction:
-                Direction = Direction.split('(')[0]
-
-            transfers.append(Direction)
-
-    tmp1 = open(pwd_cir_plot_t1, 'w')
-    all_group_id = []
-    for each_t in transfers:
-        each_t_split    = each_t.split('-->')
-        donor           = each_t_split[0]
-        recipient       = each_t_split[1]
-        donor_group     = genome_to_group_dict[donor]
-        recipient_group = genome_to_group_dict[recipient]
-        if donor_group not in all_group_id:
-            all_group_id.append(donor_group)
-        if recipient_group not in all_group_id:
-            all_group_id.append(recipient_group)
-        tmp1.write('%s,%s\n' % (donor_group, recipient_group))
-    tmp1.close()
-
-    os.system('cat %s | sort > %s' % (pwd_cir_plot_t1, pwd_cir_plot_t1_sorted))
-
-    current_t = ''
-    count = 0
-    tmp2 = open(pwd_cir_plot_t1_sorted_count, 'w')
-    for each_t2 in open(pwd_cir_plot_t1_sorted):
-        each_t2 = each_t2.strip()
-        if current_t == '':
-            current_t = each_t2
-            count += 1
-        elif current_t == each_t2:
-            count += 1
-        elif current_t != each_t2:
-            tmp2.write('%s,%s\n' % (current_t, count))
-            current_t = each_t2
-            count = 1
-    tmp2.write('%s,%s\n' % (current_t, count))
-    tmp2.close()
-
-    # read in count as dict
-    transfer_count = {}
-    for each_3 in open(pwd_cir_plot_t1_sorted_count):
-        each_3_split = each_3.strip().split(',')
-        key = '%s,%s' % (each_3_split[0], each_3_split[1])
-        value = each_3_split[2]
-        transfer_count[key] = value
-
-    all_group_id = sorted(all_group_id)
-
-    matrix_file = open(pwd_cir_plot_matrix_filename, 'w')
-    matrix_file.write('\t' + '\t'.join(all_group_id) + '\n')
-    for each_1 in all_group_id:
-        row = [each_1]
-        for each_2 in all_group_id:
-            current_key = '%s,%s' % (each_2, each_1)
-            if current_key not in transfer_count:
-                row.append('0')
-            else:
-                row.append(transfer_count[current_key])
-        matrix_file.write('\t'.join(row) + '\n')
-    matrix_file.close()
-
-    # get plot with R
-    if len(all_group_id) > 1:
-        os.system('Rscript %s -m %s -p %s' % (circos_HGT_R, pwd_cir_plot_matrix_filename, pwd_plot_circos))
-
-    # rm tmp files
-    os.system('rm %s' % pwd_cir_plot_t1)
-    os.system('rm %s' % pwd_cir_plot_t1_sorted)
-    os.system('rm %s' % pwd_cir_plot_t1_sorted_count)
+    matrix_df = pd.read_csv(data_matrix, sep=sep_symbol, header=0, index_col=0)
+    circos = Circos.initialize_from_matrix(matrix_df,
+                                           start=-265,          # Plot start degree (-360 <= start < end <= 360)
+                                           end=95,              # Plot end degree (-360 <= start < end <= 360)
+                                           space=3,             # Space degree(s) between sector
+                                           r_lim=(90, 95),      # Outer track radius limit region (0 - 100)
+                                           cmap="tab10",        # Colormap assigned to each outer track and link.
+                                           order='desc',        # asc, desc; sort in ascending(or descending) order by node size.
+                                           ticks_interval=1,    # Ticks interval. If None, ticks are not plotted.
+                                           label_kws=dict(size=9, orientation="vertical"),
+                                           link_kws=dict(direction=1, color='white', ec="black", lw=0))
+    fig = circos.plotfig()
+    fig.savefig(plot_out, dpi=100)
 
 
 def unique_list_elements(list_input):
@@ -1491,26 +1358,26 @@ def unique_list_elements(list_input):
 
 def combine_PG_output(PG_output_file_list_with_path, detection_ranks, combined_PG_output_normal):
 
+    HGT_concatenated_list = []
     HGT_identity_dict = dict()
     HGT_end_match_dict = dict()
-    HGT_full_length_match_dict = dict()
     HGT_direction_dict = dict()
     HGT_occurence_dict = dict()
-    HGT_concatenated_list = []
+    HGT_full_length_match_dict = dict()
     for pwd_PG_output_file in PG_output_file_list_with_path:
         file_path, file_name = os.path.split(pwd_PG_output_file)
         taxon_rank = file_path.split('_')[-1][0]
         if taxon_rank in detection_ranks:
             for PG_HGT in open(pwd_PG_output_file):
                 if not PG_HGT.startswith('Gene_1'):
-                    PG_HGT_split        = PG_HGT.strip().split('\t')
-                    gene_1              = PG_HGT_split[0]
-                    gene_2              = PG_HGT_split[1]
-                    identity            = float(PG_HGT_split[4])
-                    end_match           = PG_HGT_split[5]
-                    full_length_match   = PG_HGT_split[6]
-                    direction           = PG_HGT_split[7]
-                    concatenated        = '%s___%s' % (gene_1, gene_2)
+                    PG_HGT_split      = PG_HGT.strip().split('\t')
+                    gene_1            = PG_HGT_split[0]
+                    gene_2            = PG_HGT_split[1]
+                    identity          = float(PG_HGT_split[4])
+                    end_match         = PG_HGT_split[5]
+                    full_length_match = PG_HGT_split[6]
+                    direction         = PG_HGT_split[7]
+                    concatenated      = '%s___%s' % (gene_1, gene_2)
                     if concatenated not in HGT_concatenated_list:
                         HGT_concatenated_list.append(concatenated)
 
@@ -1592,19 +1459,16 @@ def select_seq(seq_file, seq_id_list, output_file):
 
 def run_mmseqs_linclust(pwd_combined_faa, num_threads, mmseqs_tsv, pwd_log_file):
 
-    mmseqs_db  = '%s.db'            % pwd_combined_faa
-    mmseqs_clu = '%s.db.clu'        % pwd_combined_faa
-    mmseqs_tmp = '%s.db.clu.tmp'    % pwd_combined_faa
+    mmseqs_db  = '%s.db'         % pwd_combined_faa
+    mmseqs_clu = '%s.db.clu'     % pwd_combined_faa
+    mmseqs_tmp = '%s.db.clu.tmp' % pwd_combined_faa
 
     # run mmseqs
     mmseqs_createdb_cmd  = 'mmseqs createdb %s %s > /dev/null' % (pwd_combined_faa, mmseqs_db)
     report_and_log(mmseqs_createdb_cmd, pwd_log_file, True)
     os.system(mmseqs_createdb_cmd)
 
-    #mmseqs_linclust_cmd  = 'mmseqs linclust %s %s %s --threads %s --min-seq-id 0.600 --seq-id-mode 0 --min-aln-len 200 --cov-mode 0 -c 0.75 --similarity-type 2 --remove-tmp-files > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
-    #mmseqs_cluster_cmd  = 'mmseqs cluster %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 -s 7.5 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
-    #mmseqs_cluster_cmd  = 'mmseqs cluster %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
-    mmseqs_cluster_cmd  = 'mmseqs linclust %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
+    mmseqs_cluster_cmd = 'mmseqs linclust %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
     report_and_log(mmseqs_cluster_cmd, pwd_log_file, True)
     os.system(mmseqs_cluster_cmd)
 
@@ -1676,9 +1540,9 @@ def all_vs_all_blastn_by_mmseqs_clusters(mmseqs_tsv, ffn_dir, min_cluster_size, 
         # run blastn
         blastn_cmd_list = []
         for each_gnm in gnm_to_clsutered_seq_dict:
-            pwd_ffn         = '%s/%s.ffn'                           % (pwd_subset_dir, each_gnm)
-            pwd_blatn_op    = '%s/%s_blastn.tab'                    % (pwd_subset_blastn_op, each_gnm)
-            blastn_cmd      = 'blastn -query %s -db %s -out %s %s'  % (pwd_ffn, pwd_subset_ffn, pwd_blatn_op, blast_parameters)
+            pwd_ffn      = '%s/%s.ffn'                          % (pwd_subset_dir, each_gnm)
+            pwd_blatn_op = '%s/%s_blastn.tab'                   % (pwd_subset_blastn_op, each_gnm)
+            blastn_cmd   = 'blastn -query %s -db %s -out %s %s' % (pwd_ffn, pwd_subset_ffn, pwd_blatn_op, blast_parameters)
             blastn_cmd_list.append(blastn_cmd)
 
         report_and_log(('Running all-vs-all blastn with %s cores, subset %s/%s' % (num_threads, each_subset, len(gnm_to_clsutered_seq_dod))), pwd_log_file, True)
@@ -1715,7 +1579,6 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
             each_genome_split = each_genome.strip().split(',')
             group_id = each_genome_split[0]
             genome_name = each_genome_split[1]
-
             genomes_with_grouping.add(genome_name)
 
             if group_id not in group_id_2_genome_dict:
@@ -1791,12 +1654,12 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
 
             # for report and log
             sleep(0.5)
-            report_and_log(('Input genomes grouped into %s %s.' % (group_num, rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
+            report_and_log(('Input genomes grouped into %s %s' % (group_num, rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
 
             # report ignored genomes
             if ignored_genome_num > 0:
                 sleep(0.5)
-                report_and_log(('Ignored %s genome(s) for %s level HGT detection (unknown %s assignment).' % (ignored_genome_num, rank_abbre_dict[grouping_level], rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
+                report_and_log(('Ignored %s genome(s) for %s level HGT detection (unknown %s assignment)' % (ignored_genome_num, rank_abbre_dict[grouping_level], rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
 
             taxon_2_genome_dict_of_dict[grouping_level] = taxon_2_genome_dict
 
@@ -1819,12 +1682,12 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
     if len(ignored_rank_list) == len(taxon_2_genome_dict_of_dict):
         sleep(0.5)
         report_and_log(('Input genomes come from the same taxonomic group at all specified levels, program exited!'),pwd_log_file, keep_quiet)
-        report_and_log(('Please note that file extension (e.g. fa, fasta) of the input genomes should NOT be included in the taxonomy or grouping file.'),pwd_log_file, keep_quiet)
+        report_and_log(('Please note that file extension (e.g. fa, fasta) of the input genomes should NOT be included in the taxonomy or grouping file'),pwd_log_file, keep_quiet)
         exit()
     else:
         for ignored_rank in ignored_rank_list:
             sleep(0.5)
-            report_and_log(('Input genomes come from the same %s, ignored %s level HGT detection.' % (rank_abbre_dict[ignored_rank], rank_abbre_dict[ignored_rank])),pwd_log_file, keep_quiet)
+            report_and_log(('Input genomes come from the same %s, ignored %s level HGT detection' % (rank_abbre_dict[ignored_rank], rank_abbre_dict[ignored_rank])),pwd_log_file, keep_quiet)
 
     genome_for_HGT_detection_list = []
     for each_qualified_rank in taxon_2_genome_dict_of_dict_qualified:
@@ -1836,7 +1699,7 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
                     genome_for_HGT_detection_list.append('%s' % each_genome)
 
     sleep(0.5)
-    report_and_log(('Total number of qualified genomes for HGT detection: %s.' % len(genome_for_HGT_detection_list)), pwd_log_file, keep_quiet)
+    report_and_log(('Total number of qualified genomes for HGT detection: %s' % len(genome_for_HGT_detection_list)), pwd_log_file, keep_quiet)
 
     ############################################# define file/folder names #############################################
 
@@ -1859,7 +1722,7 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
             gnm_uniq_to_gbk = [i for i in input_genome_basename_list if i not in shared_gnm]
             gnm_uniq_to_grouping_file = [i for i in genomes_in_grouping_file if i not in shared_gnm]
             report_and_log(('Genomes provided in %s do not match those in %s, program exited!' % (pwd_grouping_file, gbk_dir)), pwd_log_file, keep_quiet)
-            report_and_log(('Please note that file extension (e.g., gbk) should NOT be included in the grouping file.'), pwd_log_file, keep_quiet)
+            report_and_log(('Please note that file extension (e.g., gbk) should NOT be included in the grouping file'), pwd_log_file, keep_quiet)
             report_and_log(('Genomes uniq to %s: %s' % (gbk_dir, ','.join(gnm_uniq_to_gbk))), pwd_log_file, keep_quiet)
             report_and_log(('Genomes uniq to %s: %s' % (pwd_grouping_file, ','.join(gnm_uniq_to_grouping_file))), pwd_log_file, keep_quiet)
             exit()
@@ -1869,17 +1732,20 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
             group_num = len(taxon_2_genome_dict_of_dict_qualified[grouping_level])
             grouping_file_name = 'grouping_%s%s.txt' % (grouping_level, group_num)
             pwd_grouping_file = '%s/%s' % (pwd_tmp_dir, grouping_file_name)
+            pwd_grouping_file2 = '%s/%s' % (MetaCHIP_wd, grouping_file_name)
 
             grouping_file_handle = open(pwd_grouping_file, 'w')
+            grouping_file2_handle = open(pwd_grouping_file2, 'w')
             n = 0
             for each_taxon in taxon_2_genome_dict_of_dict_qualified[grouping_level]:
                 group_id = group_index_list[n]
                 for genome in taxon_2_genome_dict_of_dict_qualified[grouping_level][each_taxon]:
                     genomes_with_grouping.add(genome)
-                    for_write = '%s,%s,%s\n'  % (group_id, genome, each_taxon)
-                    grouping_file_handle.write(for_write)
+                    grouping_file_handle.write('%s,%s,%s\n'  % (group_id, genome, each_taxon))
+                    grouping_file2_handle.write('%s\t%s\n'   % (genome, each_taxon))
                 n += 1
             grouping_file_handle.close()
+            grouping_file2_handle.close()
 
             # for report and log
             sleep(0.5)
@@ -1919,7 +1785,7 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
     if previous_blast_op is None:
         os.mkdir(pwd_blast_result_folder)
         if use_mmseqs is False:
-            report_and_log(('Making blast database.'), pwd_log_file, keep_quiet)
+            report_and_log(('Making blast database'), pwd_log_file, keep_quiet)
             makeblastdb_cmd = 'makeblastdb -in %s -dbtype nucl -parse_seqids -logfile /dev/null' % pwd_combined_ffn_file
             os.system(makeblastdb_cmd)
 
@@ -1955,12 +1821,12 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
                     pwd_blastn_op_txt_handle = open(pwd_blastn_op_txt, 'w')
                     pwd_blastn_op_txt_handle.close()
 
-        report_and_log(('Blast results exported to: %s.' % pwd_blast_result_folder), pwd_log_file, keep_quiet)
+        report_and_log(('Blast results exported to: %s' % pwd_blast_result_folder), pwd_log_file, keep_quiet)
     report_and_log('PI step done!', pwd_log_file, keep_quiet)
 
 
-def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping_file, detection_ranks, num_threads, No_Eb_Check,
-       previous_blast_op, keep_quiet, plot_flk_region, keep_temp, rank_abbre_dict, circos_HGT_R, time_format, pwd_log_file, pwd_ranger_exe):
+def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, species_tree_file, grouping_file, detection_ranks, num_threads, No_Eb_Check,
+       previous_blast_op, keep_quiet, plot_flk_region, keep_temp, rank_abbre_dict, time_format, pwd_log_file, pwd_ranger_exe):
 
     ############################################# define file/folder names #############################################
 
@@ -2033,7 +1899,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
             blast_result_file_list_not_empty.append(blast_result_file)
 
     # filtered blast results
-    report_and_log(('Filtering blastn results.'), pwd_log_file, keep_quiet)
+    report_and_log(('Filtering blastn results'), pwd_log_file, keep_quiet)
     force_create_folder(pwd_blast_result_filtered_folder)
 
     # filter blastn results with multiprocessing
@@ -2067,12 +1933,12 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
                     detected_grouping_file = grouping_file_list[0]
                     pwd_grouping_file = '%s/%s' % (pwd_tmp_dir, detected_grouping_file)
                     group_num = get_number_of_group(pwd_grouping_file)
-                    report_and_log(('%s: input genomes were clustered into %s %s.' % (grouping_level, group_num, rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
+                    report_and_log(('%s: input genomes were clustered into %s %s' % (grouping_level, group_num, rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
                 elif len(grouping_file_list) == 0:
-                    report_and_log(('%s: no grouping file at %s level found, program exited.' % (rank_abbre_dict[grouping_level], rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
+                    report_and_log(('%s: no grouping file at %s level found, program exited!' % (rank_abbre_dict[grouping_level], rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
                     exit()
                 else:
-                    report_and_log(('%s: multiple grouping file at %s level found, program exited.' % (rank_abbre_dict[grouping_level], rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
+                    report_and_log(('%s: multiple grouping file at %s level found, program exited!' % (rank_abbre_dict[grouping_level], rank_abbre_dict[grouping_level])), pwd_log_file, keep_quiet)
                     exit()
 
             else:  # with provided grouping file
@@ -2132,7 +1998,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
             ################################## perform HGT detection with BM approach ##################################
             ############################################################################################################
 
-            report_and_log(('%s: performing Best-match approach.' % grouping_level), pwd_log_file, keep_quiet)
+            report_and_log(('%s: performing Best-match approach' % grouping_level), pwd_log_file, keep_quiet)
 
             os.mkdir(pwd_blast_hit_folder_g2g)
 
@@ -2202,7 +2068,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             ############################### add group to blast hits and put subjects in one line ###############################
 
-            report_and_log(('%s: analyzing Blast hits with %s cores.' % (grouping_level, num_threads)), pwd_log_file, keep_quiet)
+            report_and_log(('%s: analyzing Blast hits with %s cores' % (grouping_level, num_threads)), pwd_log_file, keep_quiet)
             force_create_folder(pwd_blast_hit_folder_with_group)
             force_create_folder(pwd_blast_hit_folder_in_one_line)
             force_create_folder(pwd_op_candidates_with_group_folder)
@@ -2263,14 +2129,19 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
                                                                      candidates_2_contig_match_category_dict_mp, end_match_identity_cutoff, No_Eb_Check, plot_flk_region])
 
             if plot_flk_region is True:
-                report_and_log(('%s: plotting %s flanking regions with %s cores.' % (grouping_level, len(list_for_multiple_arguments_flanking_regions), num_threads)),pwd_log_file, keep_quiet)
+                report_and_log(('%s: plotting %s flanking regions with %s cores' % (grouping_level, len(list_for_multiple_arguments_flanking_regions), num_threads)),pwd_log_file, keep_quiet)
             else:
-                report_and_log(('%s: analyzing %s flanking regions with %s cores.' % (grouping_level, len(list_for_multiple_arguments_flanking_regions), num_threads)),pwd_log_file, keep_quiet)
+                report_and_log(('%s: analyzing %s flanking regions with %s cores' % (grouping_level, len(list_for_multiple_arguments_flanking_regions), num_threads)),pwd_log_file, keep_quiet)
 
             pool_flanking_regions = mp.Pool(processes=num_threads)
-            pool_flanking_regions.map(get_gbk_blast_act2, list_for_multiple_arguments_flanking_regions)
+            pool_flanking_regions.map(get_gbk_blast_act, list_for_multiple_arguments_flanking_regions)
             pool_flanking_regions.close()
             pool_flanking_regions.join()
+
+            if plot_flk_region is True:
+                report_and_log(('%s: plot %s flanking regions done!' % (grouping_level, len(list_for_multiple_arguments_flanking_regions))), pwd_log_file, keep_quiet)
+            else:
+                report_and_log(('%s: analyze %s flanking regions done!' % (grouping_level, len(list_for_multiple_arguments_flanking_regions))), pwd_log_file, keep_quiet)
 
             # remove temporary folder
             if keep_temp == 0:
@@ -2280,7 +2151,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
                 rm_folder_file(act_folder_re)
 
             # convert mp.dict to normal dict
-            candidates_2_contig_match_category_dict = {each_key: each_value for each_key, each_value in candidates_2_contig_match_category_dict_mp.items()}
+            candidates_2_contig_match_category_dict = {k: v for k, v in candidates_2_contig_match_category_dict_mp.items()}
 
             ################################################ get BM output file ################################################
 
@@ -2318,7 +2189,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             ################################### export nc and aa sequence of predicted HGTs ####################################
 
-            report_and_log(('%s: extracting sequences of HGT candidates.' % grouping_level), pwd_log_file, keep_quiet)
+            report_and_log(('%s: extracting sequences of HGT candidates' % grouping_level), pwd_log_file, keep_quiet)
 
             # get qualified HGT candidates
             HGT_candidates_qualified = set()
@@ -2338,7 +2209,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
             candidates_seq_nc_handle.close()
 
             # report
-            report_and_log(('%s: BM approach completed.' % grouping_level), pwd_log_file, keep_quiet)
+            report_and_log(('%s: BM approach completed' % grouping_level), pwd_log_file, keep_quiet)
 
             ############################################################################################################
             ################################## perform HGT detection with PG approach ##################################
@@ -2365,7 +2236,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
                 report_and_log(('%s: no HGT detected by BM approach!' % grouping_level), pwd_log_file, keep_quiet=False)
 
             # for report and log
-            report_and_log(('%s: get gene/genome members in gene/species tree for BM predicted HGT candidates.' % grouping_level), pwd_log_file, keep_quiet)
+            report_and_log(('%s: get gene/genome members in gene/species tree for BM predicted HGT candidates' % grouping_level), pwd_log_file, keep_quiet)
 
             # get bin_record_list and genome name list
             bin_record_list = []
@@ -2406,7 +2277,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
             ################################# Prepare subset of faa_file for building gene tree ####################################
 
             # for report and log
-            report_and_log(('%s: prepare faa subset.' % (grouping_level)), pwd_log_file, keep_quiet)
+            report_and_log(('%s: prepare faa subset' % (grouping_level)), pwd_log_file, keep_quiet)
 
             # prepare combined_ffn file subset to speed up
             pwd_combined_faa_file_subset_handle = open(pwd_combined_faa_file_subset, 'w')
@@ -2419,7 +2290,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
             ################################## get gene tree and SCG tree subset ##################################
 
             # for report and log
-            report_and_log(('%s: get species/gene tree for %s HGT candidates with %s cores.' % (grouping_level, len(candidates_list), num_threads)), pwd_log_file, keep_quiet)
+            report_and_log(('%s: get species/gene tree for %s HGT candidates with %s cores' % (grouping_level, len(candidates_list), num_threads)), pwd_log_file, keep_quiet)
 
             # put multiple arguments in list
             list_for_multiple_arguments_extract_gene_tree_seq = []
@@ -2433,7 +2304,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             ##################################################### Run Ranger-DTL ###################################################
 
-            report_and_log(('%s: running Ranger-DTL2.'% grouping_level), pwd_log_file, keep_quiet)
+            report_and_log(('%s: running Ranger-DTL2' % grouping_level), pwd_log_file, keep_quiet)
             force_create_folder(pwd_ranger_inputs_folder)
             force_create_folder(pwd_ranger_outputs_folder)
 
@@ -2451,7 +2322,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             ########################################### parse Ranger-DTL prediction result #########################################
 
-            report_and_log(('%s: parsing Ranger-DTL2 outputs.' % grouping_level), pwd_log_file, keep_quiet)
+            report_and_log(('%s: parsing Ranger-DTL2 outputs' % grouping_level), pwd_log_file, keep_quiet)
 
             candidate_2_predictions_dict = {}
             candidate_2_possible_direction_dict = {}
@@ -2559,7 +2430,6 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
     if grouping_file is not None:
 
-        multi_level_detection = False
         pwd_MetaCHIP_op_folder_re = '%s/detect_x*' % pwd_tmp_dir
         MetaCHIP_op_folder = ''
         if len([os.path.basename(file_name) for file_name in glob.glob(pwd_MetaCHIP_op_folder_re)]) == 1:
@@ -2616,16 +2486,20 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             ###################################### Get_circlize_plot #######################################
 
-            pwd_plot_circos = '%s/%s_x%s_HGTs_among_provided_groups.pdf' % (MetaCHIP_wd, op_prefix, group_num)
+            pwd_grouping_txt = '%s/x%s_grouping.txt' % (MetaCHIP_wd, group_num)
+            pwd_plot_circos  = '%s/x%s_circos.pdf'   % (MetaCHIP_wd, group_num)
+            hgt_matrix       = '%s.matrix.txt'       % pwd_plot_circos
 
             # get genome to group dict
-            genome_to_group_dict = {}
+            pwd_grouping_txt_handle = open(pwd_grouping_txt, 'w')
             for genome in open(grouping_file):
                 group_id2 = genome.strip().split(',')[0]
                 genome_name = genome.strip().split(',')[1]
-                genome_to_group_dict[genome_name] = group_id2
+                pwd_grouping_txt_handle.write('%s\t%s\n' % (genome_name, group_id2))
+            pwd_grouping_txt_handle.close()
 
-            Get_circlize_plot_customized_grouping(multi_level_detection, pwd_detected_HGT_txt, genome_to_group_dict, circos_HGT_R, pwd_plot_circos, detect_wd)
+            get_circos_matrix(pwd_grouping_txt, pwd_detected_HGT_txt, hgt_matrix)
+            pycircos(hgt_matrix, '\t', pwd_plot_circos)
 
             # remove tmp files
             os.remove(pwd_detected_HGT_PG_txt)
@@ -2641,7 +2515,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
         # for single level detection
         if len(detection_rank_list) == 1:
-            multi_level_detection       = False
+
             pwd_MetaCHIP_op_folder_re   = '%s/detect_%s*'           % (pwd_tmp_dir, detection_rank_list)
             MetaCHIP_op_folder          = [os.path.basename(file_name) for file_name in glob.glob(pwd_MetaCHIP_op_folder_re)][0]
             detect_wd                   = '%s/%s'                   % (pwd_tmp_dir, MetaCHIP_op_folder)
@@ -2688,25 +2562,10 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             ###################################### Get_circlize_plot #######################################
 
-            grouping_file_re  = '%s/grouping_%s*.txt'   % (pwd_tmp_dir, detection_rank_list)
+            grouping_file_re  = '%s/grouping_%s*.txt'   % (MetaCHIP_wd, detection_rank_list)
             grouping_file     = [os.path.basename(file_name) for file_name in glob.glob(grouping_file_re)][0]
-            taxon_rank_num    = grouping_file[len(op_prefix) + 1:].split('_')[0]
-            pwd_grouping_file = '%s/%s'                 % (pwd_tmp_dir, grouping_file)
+            pwd_grouping_file = '%s/%s'                 % (MetaCHIP_wd, grouping_file)
             pwd_plot_circos   = '%s/detected_HGTs.pdf'  % (MetaCHIP_wd)
-
-            taxon_to_group_id_dict = {}
-            for group in open(pwd_grouping_file):
-                group_id = group.strip().split(',')[0]
-                group_taxon = group.strip().split(',')[2]
-                if group_id not in taxon_to_group_id_dict:
-                    taxon_to_group_id_dict[group_id] = group_taxon
-
-            # get genome to taxon dict
-            genome_to_taxon_dict = {}
-            for genome in open(pwd_grouping_file):
-                group_id2 = genome.strip().split(',')[0]
-                genome_name = genome.strip().split(',')[1]
-                genome_to_taxon_dict[genome_name] = taxon_to_group_id_dict[group_id2]
 
             detected_HGT_num = -1
             for each_line in open(pwd_detected_HGT_txt):
@@ -2716,7 +2575,9 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
                 report_and_log(('No HGT detected, program exited!'), pwd_log_file, keep_quiet)
                 exit()
             else:
-                Get_circlize_plot(multi_level_detection, pwd_detected_HGT_txt, genome_to_taxon_dict, circos_HGT_R, pwd_plot_circos, detection_rank_list, MetaCHIP_wd)
+                hgt_matrix = '%s.matrix.txt' % pwd_plot_circos
+                get_circos_matrix(pwd_grouping_file, pwd_detected_HGT_txt, hgt_matrix)
+                pycircos(hgt_matrix, '\t', pwd_plot_circos)
 
             # remove tmp files
             os.remove(pwd_detected_HGT_PG_txt)
@@ -2729,7 +2590,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
         # for multiple level detection
         else:
             report_and_log('Combine multiple level predictions',pwd_log_file, keep_quiet)
-            multi_level_detection = True
+
             pwd_detected_HGT_txt_list = []
             pwd_flanking_plot_folder_list = []
             for detection_rank in detection_rank_list:
@@ -2811,17 +2672,10 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
             for detection_rank in detection_rank_list:
                 if detection_rank not in ignored_rank_list:
-                    grouping_file_re    = '%s/grouping_%s*.txt'         % (pwd_tmp_dir, detection_rank)
+                    grouping_file_re    = '%s/grouping_%s*.txt'         % (MetaCHIP_wd, detection_rank)
                     grouping_file       = [os.path.basename(file_name) for file_name in glob.glob(grouping_file_re)][0]
-                    pwd_grouping_file   = '%s/%s'                       % (pwd_tmp_dir, grouping_file)
+                    pwd_grouping_file   = '%s/%s'                       % (MetaCHIP_wd, grouping_file)
                     pwd_plot_circos     = '%s/HGTs_among_%s.pdf'        % (MetaCHIP_wd, rank_abbre_dict[detection_rank])
-
-                    # get genome to taxon dict
-                    genome_to_taxon_dict = {}
-                    for genome in open(pwd_grouping_file):
-                        genome_name = genome.strip().split(',')[1]
-                        genome_taxon = genome.strip().split(',')[2]
-                        genome_to_taxon_dict[genome_name] = genome_taxon
 
                     detected_HGT_num = -1
                     for each_line in open(pwd_detected_HGT_txt_combined):
@@ -2831,7 +2685,9 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
                         report_and_log(('No HGT detected, program exited!'), pwd_log_file, keep_quiet)
                         exit()
                     else:
-                        Get_circlize_plot(multi_level_detection, pwd_detected_HGT_txt_combined, genome_to_taxon_dict, circos_HGT_R, pwd_plot_circos, detection_rank, MetaCHIP_wd)
+                        hgt_matrix = '%s.matrix.txt' % pwd_plot_circos
+                        get_circos_matrix(pwd_grouping_file, pwd_detected_HGT_txt_combined, hgt_matrix)
+                        pycircos(hgt_matrix, '\t', pwd_plot_circos)
 
             ###################################### remove tmp files #######################################
 
@@ -2843,8 +2699,7 @@ def BP(MetaCHIP_wd, pwd_tmp_dir, gbk_dir, op_prefix, species_tree_file, grouping
 
 def detect(args):
 
-    output_prefix           = args['p']
-    output_folder           = args['o']
+    MetaCHIP2_wd            = args['o']
     gbk_dir                 = args['i']
     gbk_ext                 = args['x']
     pwd_species_tree        = args['s']
@@ -2852,7 +2707,7 @@ def detect(args):
     grouping_levels         = args['r']
     grouping_file           = args['g']
     previous_blast_op       = args['b']
-    use_mmseqs              = args['mmseqs']
+    use_mmseqs              = args['m']
     skip_plot_flk_region    = args['np']
     skip_end_break_check    = args['nc']
     force_overwrite         = args['f']
@@ -2860,8 +2715,6 @@ def detect(args):
     keep_quiet              = args['q']
     keep_temp               = args['tmp']
 
-    current_file_path       = '/'.join(os.path.realpath(__file__).split('/')[:-1])
-    circos_HGT_R            = '%s/circos_HGT.R' % current_file_path
     rank_to_position_dict   = {'d': 0, 'p': 1, 'c': 2, 'o': 3, 'f': 4, 'g': 5, 's': 6}
     rank_abbre_dict         = {'d': 'domain',  'p': 'phylum', 'c': 'class',   'o': 'order',  'f': 'family',   'g': 'genus',  's': 'species', 'x': 'specified group'}
     blast_parameters        = '-evalue 1e-5 -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qlen slen" -task blastn -num_threads 1'
@@ -2877,10 +2730,6 @@ def detect(args):
         gbk_dir = gbk_dir[:-1]
 
     ############################################### check output folder ################################################
-
-    MetaCHIP2_wd = '%s_MetaCHIP2_wd' % output_prefix
-    if output_folder is not None:
-        MetaCHIP2_wd = output_folder
 
     if (os.path.isdir(MetaCHIP2_wd) is True) and (force_overwrite is False):
         print('Output folder (%s) already exist, program exited!' % MetaCHIP2_wd)
@@ -2903,7 +2752,7 @@ def detect(args):
     if platform.system() == 'Darwin':
         pwd_ranger_exe = '%s/Ranger-DTL.mac' % current_file_path
 
-    program_list = ['makeblastdb', 'blastn', 'blastp', pwd_ranger_exe, 'mafft', 'FastTree', 'Rscript']
+    program_list = ['makeblastdb', 'blastn', 'blastp', pwd_ranger_exe, 'mafft', 'FastTree']
     if use_mmseqs is True:
         program_list.append('mmseqs')
 
@@ -2970,13 +2819,14 @@ def detect(args):
 
     # run PI
     PI(MetaCHIP2_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, GTDB_output_file, grouping_levels, grouping_file,
-       previous_blast_op, use_mmseqs, num_threads, keep_quiet, rank_abbre_dict, blast_parameters,
-       rank_to_position_dict, pwd_log_file)
+       previous_blast_op, use_mmseqs, num_threads, keep_quiet, rank_abbre_dict, blast_parameters, rank_to_position_dict, pwd_log_file)
 
     # run BP
-    BP(MetaCHIP2_wd, pwd_tmp_dir, gbk_dir, output_prefix, pwd_species_tree, grouping_file, grouping_levels, num_threads,
-       skip_end_break_check, previous_blast_op, keep_quiet, plot_flk_region, keep_temp, rank_abbre_dict, circos_HGT_R,
-       time_format, pwd_log_file, pwd_ranger_exe)
+    BP(MetaCHIP2_wd, pwd_tmp_dir, gbk_dir, pwd_species_tree, grouping_file, grouping_levels, num_threads,
+       skip_end_break_check, previous_blast_op, keep_quiet, plot_flk_region, keep_temp, rank_abbre_dict,time_format, pwd_log_file, pwd_ranger_exe)
+
+    if (grouping_file is None) and (GTDB_output_file is not None) and (grouping_levels is not None):
+        os.system('rm %s/tmp/grouping_*.txt' % MetaCHIP2_wd)
 
     print('Done!')
 
@@ -2986,8 +2836,7 @@ def detect(args):
 if __name__ == '__main__':
 
     detect_parser = argparse.ArgumentParser()
-    detect_parser.add_argument('-p',        required=True,                         help='output file prefix')
-    detect_parser.add_argument('-o',        required=False, default=None,          help='output folder location (default: current working directory)')
+    detect_parser.add_argument('-o',        required=True,                         help='output folder')
     detect_parser.add_argument('-i',        required=True,                         help='input gbk folder')
     detect_parser.add_argument('-x',        required=False, default='gbk',         help='file extension, default: gbk')
     detect_parser.add_argument('-s',        required=True,                         help='species tree of input genomes')
@@ -2995,7 +2844,7 @@ if __name__ == '__main__':
     detect_parser.add_argument('-r',        required=False, default=None,          help='grouping rank, e.g., p, c, o, f, g, pcofg or pco...')
     detect_parser.add_argument('-g',        required=False, default=None,          help='grouping file')
     detect_parser.add_argument('-b',        required=False, default=None,          help='all-vs-all blastn results (e.g., from a previous run)')
-    detect_parser.add_argument('-mmseqs',   required=False, action="store_true",   help='speed-up all-vs-all blastn using mmseqs')
+    detect_parser.add_argument('-m',        required=False, action="store_true",   help='speed-up all-vs-all blastn using mmseqs')
     detect_parser.add_argument('-np',       required=False, action="store_true",   help='skip plotting flanking regions')
     detect_parser.add_argument('-nc',       required=False, action="store_true",   help='skip end-break and contig-match check, not recommend for metagenome-assembled genomes')
     detect_parser.add_argument('-t',        required=False, type=int, default=1,   help='number of threads, default: 1')
@@ -3004,32 +2853,3 @@ if __name__ == '__main__':
     detect_parser.add_argument('-f',        required=False, action="store_true",   help='force overwrite previous results')
     args = vars(detect_parser.parse_args())
     detect(args)
-
-
-'''
-
-cd /Users/songweizhi/Desktop/NASA
-python3 ~/PycharmProjects/MetaCHIP2/MetaCHIP2/detect.py -i refined_MAGs_gbk -x gbk -c refined_MAGs_GTDB_r214/refined_MAGs_renamed_GTDB_r214.bac120.summary.tsv -r pcofg -p NASA -t 10 -s refined_MAGs_GTDB_r214_tree/refined_MAGs_r214_bac120.rooted.tree -blast_op refined_MAGs_blastn_op
-python3 ~/PycharmProjects/MetaCHIP2/MetaCHIP2/detect.py -i refined_MAGs_gbk -x gbk -c refined_MAGs_GTDB_r214/refined_MAGs_renamed_GTDB_r214.bac120.summary.tsv -r pcofg -p NASA_mmseqs -t 10 -s refined_MAGs_GTDB_r214_tree/refined_MAGs_r214_bac120.rooted.tree -mmseqs -f
-MetaCHIP2 detect -i refined_MAGs_gbk -x gbk -c refined_MAGs_GTDB_r214/refined_MAGs_renamed_GTDB_r214.bac120.summary.tsv -r pcofg -p NASA_mmseqs -t 10 -s refined_MAGs_GTDB_r214_tree/refined_MAGs_r214_bac120.rooted.tree -b refined_MAGs_blastn_op_mmseqs -f
-
-# run on katana
-module purge
-module load python/3.7.4
-source ~/mypython3env/bin/activate
-module load blast-plus/2.12.0
-module load mafft/7.481
-module load fasttree/2.1.11
-cd /srv/scratch/z5265700/Shan_z5095298/z5095298/Weizhi/NASA
-MetaCHIP2 detect -i refined_MAGs_gbk -x gbk -c refined_MAGs_renamed_GTDB_r214.bac120.summary.tsv -r pcofg -p NASA_mmseqs -t 10 -s refined_MAGs_r214_bac120.rooted.tree -b refined_MAGs_blastn_op_mmseqs -f
-
-cd /Users/songweizhi/Desktop/metachip_test
-MetaCHIP2 root -db /Users/songweizhi/DB/GTDB_r214 -out S2_sal_fde_rooted.tree -cb S2_sal_fde_taxon.tsv -tb S2_sal_fde.tree
-
-cd /Users/songweizhi/Desktop/metachip_test
-MetaCHIP2 detect -i S2_sal_fde_gbk -x gbk -c S2_sal_fde_taxon.tsv -s S2_sal_fde_rooted.tree -t 10 -f -r pco -p S2_sal_fde_pco_blastn
-MetaCHIP2 detect -i S2_sal_fde_gbk -x gbk -c S2_sal_fde_taxon.tsv -s S2_sal_fde_rooted.tree -t 10 -f -r pco -p S2_sal_fde_pco_mmseqs -m
-MetaCHIP2 detect -i S2_sal_fde_gbk -x gbk -c S2_sal_fde_taxon.tsv -s S2_sal_fde_rooted.tree -t 10 -f -b S2_sal_fde_blastn_results -r pco -p S2_sal_fde_pco
-MetaCHIP2 detect -i S2_sal_fde_gbk -x gbk -c S2_sal_fde_taxon.tsv -s S2_sal_fde_rooted.tree -t 10 -f -b S2_sal_fde_blastn_results -r pcofg -p Demo
-
-'''

@@ -1,19 +1,23 @@
 Metadata-Version: 2.1
 Name: MetaCHIP2
-Version: 2.2.4
+Version: 2.3.8
 Summary: HGT detection pipeline
 Home-page: https://github.com/songweizhi/MetaCHIP2
-Author: Weizhi Song, Shan Zhang and Torsten Thomas
+Author: Shan Zhang, Torsten Thomas and Weizhi Song
 Author-email: songwz03@gmail.com
 License: GPL3+
 Keywords: Bioinformatics Metagenomics HGT_detection
+Platform: UNKNOWN
 License-File: LICENSE.txt
 
 
 
 MetaCHIP2: community-level HGT identification pipeline
 
-Weizhi Song (songwz03@gmail.com)
-Centre for Marine Science and Innovation (CMSI),
-University of New South Wales, Sydney, Australia
+Dr Shan Zhang
+Dr Weizhi Song (songwz03@gmail.com)
+Department of Ocean Science (OCES), 
+Hong Kong University of Science and Technology (HKUST), 
+Hong Kong
+
 

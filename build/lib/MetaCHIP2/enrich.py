@@ -3,39 +3,41 @@ import glob
 import pandas
 import argparse
 import numpy as np
+import pandas as pd
 from Bio import SeqIO
+from copy import deepcopy
 import multiprocessing as mp
 from datetime import datetime
 from Bio.SeqRecord import SeqRecord
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 
 enrich_usage = '''
-============================ enrich example commands ============================
+============================== enrich example commands ==============================
 
 # This module was prepared to produce a plot as Fig. 9 in the MetaCHIP paper
-MetaCHIP2 enrich -faa faa_files -o demo_1HGT -db_dir /Users/songweizhi/DB/COG2020 -t 10 -diamond -f -hgt1 detected_HGTs.faa -desc
-MetaCHIP2 enrich -faa faa_files -o demo_2HGT -db_dir /Users/songweizhi/DB/COG2020 -t 10 -diamond -f -hgt1 HGTs_setting1.faa -hgt2 HGTs_setting2.faa
 
-# Prepare DB files (version 2020):
-cd path/to/your/COG_db_dir
-wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.fa.gz
+MetaCHIP2 enrich -faa faa_files -o demo_1HGT -db path_to/COG2020_db_dir -t 12 -hgt1 detected_HGTs.faa
+MetaCHIP2 enrich -faa faa_files -o demo_2HGT -db path_to/COG2020_db_dir -t 12 -hgt1 hgt1.faa -hgt2 hgt2.faa
+
+# Prepare database files:
+mkdir COG2020_db_dir; cd COG2020_db_dir
+wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.fa.gz; gunzip cog-20.fa.gz
 wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.cog.csv
 wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.def.tab
 wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/fun-20.tab
-wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/Readme.2020-11-25.txt
-gunzip cog-20.fa.gz
-makeblastdb -in cog-20.fa -dbtype prot -parse_seqids -logfile cog-20.fa.log
+makeblastdb -in cog-20.fa -dbtype prot -parse_seqids
 diamond makedb --in cog-20.fa --db cog-20.fa.dmnd --quiet
 
-# The complete descriptions of COG categories can be found here:
-https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/fun-20.tab
-
-=================================================================================
+=====================================================================================
 '''
 
 time_format = '[%Y-%m-%d %H:%M:%S] '
 
 def sep_path_basename_ext(file_in):
+
     f_path, file_name = os.path.split(file_in)
     if f_path == '':
         f_path = '.'
@@ -44,6 +46,7 @@ def sep_path_basename_ext(file_in):
 
 
 def dna2aa(dna_file, aa_file):
+
     query_aa_handle = open(aa_file, 'w')
     for each in SeqIO.parse(dna_file, 'fasta'):
         each_aa = each.seq.translate()
@@ -54,10 +57,8 @@ def dna2aa(dna_file, aa_file):
     query_aa_handle.close()
 
 
-def best_hit(args):
+def best_hit(file_in, file_out):
 
-    file_in = args['i']
-    file_out = args['o']
     file_out_handle = open(file_out, 'w')
     best_hit_line = ''
     best_hit_query_id = ''
@@ -107,13 +108,15 @@ def COG2020_worker(argument_list):
     os.mkdir(current_output_folder)
 
     # run blastp
+    blastp_cmd  = 'blastp -query %s -db %s -out %s -evalue %s -outfmt 6 -show_gis -num_threads %s'          % (pwd_input_file, pwd_prot2003_2014, pwd_blastp_output, evalue_cutoff, thread_num)
+    diamond_cmd = 'diamond blastp -q %s --db %s.dmnd --out %s --evalue %s --outfmt 6 --threads %s --quiet'  % (pwd_input_file, pwd_prot2003_2014, pwd_blastp_output, evalue_cutoff, thread_num)
     if run_diamond is False:
-        os.system('blastp -query %s -db %s -out %s -evalue %s -outfmt 6 -show_gis -num_threads %s' % (pwd_input_file, pwd_prot2003_2014, pwd_blastp_output, evalue_cutoff, thread_num))
+        os.system(blastp_cmd)
     else:
-        os.system('diamond blastp -q %s --db %s.dmnd --out %s --evalue %s --outfmt 6 --threads %s --quiet' % (pwd_input_file, pwd_prot2003_2014, pwd_blastp_output, evalue_cutoff, thread_num))
+        os.system(diamond_cmd)
 
     # keep only best hits
-    best_hit({'i': pwd_blastp_output, 'o': pwd_blastp_output_besthits})
+    best_hit(pwd_blastp_output, pwd_blastp_output_besthits)
 
     # get query_to_ref_protein_dict
     query_to_ref_protein_dict = {}
@@ -380,6 +383,125 @@ def boxplot_matrix_COG(input_folder, output_csv, in_percent, skip_1st_row, with_
     category_num_df.to_csv(output_csv)
 
 
+def subset_df(df_in, rows_to_keep, cols_to_keep):
+    if len(rows_to_keep) == 0:
+        if len(cols_to_keep) == 0:
+            subset_df = df_in.loc[:, :]
+        else:
+            subset_df = df_in.loc[:, cols_to_keep]
+    else:
+        if len(cols_to_keep) == 0:
+            subset_df = df_in.loc[rows_to_keep, :]
+        else:
+            subset_df = df_in.loc[rows_to_keep, cols_to_keep]
+
+    return subset_df
+
+
+def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
+    label_rotation = 0
+    input_df = pd.read_csv(data_matrix, sep=',', header=0, index_col=0)
+    col_id_list = input_df.columns.values.tolist()
+    row_id_list = input_df.index.to_list()
+    mag_list = deepcopy(row_id_list)
+    mag_list.remove(hgt1_id)
+    if hgt2_id is not None:
+        mag_list.remove(hgt2_id)
+
+    input_df_mags = subset_df(input_df, mag_list, [])
+    input_df_hgt1 = subset_df(input_df, [hgt1_id], [])
+    if hgt2_id is not None:
+        input_df_hgt2 = subset_df(input_df, [hgt2_id], [])
+
+    fig = plt.figure(1, figsize=(9, 6))
+    ax = fig.add_subplot(111)
+    median_line_props = dict(color="black", linewidth=1.5)  # customise median line
+    bp = ax.boxplot(input_df_mags, medianprops=median_line_props)
+    ax.set_xticklabels(col_id_list, rotation=label_rotation, fontsize=8)
+
+    plt.title('Filled: %s, unfilled: %s' % (hgt1_id, hgt2_id))
+    plt.xlabel('COG category')
+    plt.ylabel('Proportion')
+
+    # change the style of fliers and their fill
+    for flier in bp['fliers']:
+        flier.set(marker='.', color='black', alpha=0.7, markersize=3, markerfacecolor='black', markeredgecolor='black')
+
+    # add hgt1 values, https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+    hgt1_value_list = []
+    hgt1_shape_list = []
+    hgt1_color_list = []
+    hgt1_size_list = []
+    hgt2_value_list = []
+    hgt2_shape_list = []
+    hgt2_color_list = []
+    hgt2_size_list = []
+    for col_id in col_id_list:
+
+        hgt1_value = input_df_hgt1[col_id].values[0]
+        if hgt2_id is not None:
+            hgt2_value = input_df_hgt2[col_id].values[0]
+        mag_value_list = input_df_mags[col_id].values
+        mag_value_percentile_25 = np.percentile(mag_value_list, 25)
+        mag_value_percentile_75 = np.percentile(mag_value_list, 75)
+
+        # get value list
+        hgt1_value_list.append(hgt1_value)
+        if hgt2_id is not None:
+            hgt2_value_list.append(hgt2_value)
+
+        # get shape and color list for hgt1
+        if hgt1_value < mag_value_percentile_25:
+            hgt1_shape_list.append('v')
+            hgt1_color_list.append('deepskyblue')
+            hgt1_size_list.append(7)
+        elif hgt1_value > mag_value_percentile_75:
+            hgt1_shape_list.append('^')
+            hgt1_color_list.append('red')
+            hgt1_size_list.append(7)
+        else:
+            hgt1_shape_list.append('s')
+            hgt1_color_list.append('grey')
+            hgt1_size_list.append(5)
+
+        # get shape and color list for hgt2
+        if hgt2_id is not None:
+            if hgt2_value < mag_value_percentile_25:
+                hgt2_shape_list.append('v')
+                hgt2_color_list.append('deepskyblue')
+                hgt2_size_list.append(7)
+            elif hgt2_value > mag_value_percentile_75:
+                hgt2_shape_list.append('^')
+                hgt2_color_list.append('red')
+                hgt2_size_list.append(7)
+            else:
+                hgt2_shape_list.append('s')
+                hgt2_color_list.append('grey')
+                hgt2_size_list.append(5)
+
+    # add hgt1 points
+    x_index = 1
+    for (hgt1_value, hgt1_shape, hgt1_color, hgt1_size) in zip(hgt1_value_list, hgt1_shape_list, hgt1_color_list,
+                                                               hgt1_size_list):
+        plt.plot(x_index, hgt1_value, alpha=1, marker=hgt1_shape, markersize=hgt1_size, markeredgewidth=1,
+                 color=hgt1_color)
+        x_index += 1
+
+    # add hgt2 points
+    if hgt2_id is not None:
+        x_index = 1
+        for (hgt2_value, hgt2_shape, hgt2_color, hgt2_size) in zip(hgt2_value_list, hgt2_shape_list, hgt2_color_list,
+                                                                   hgt2_size_list):
+            plt.plot(x_index, hgt2_value, alpha=1, marker=hgt2_shape, markersize=hgt2_size, markeredgewidth=1,
+                     color=hgt2_color, fillstyle='none')
+            x_index += 1
+
+    # export plot
+    plt.tight_layout()
+    fig.savefig(output_plot, bbox_inches='tight', dpi=300)
+    plt.close()
+
+
 def enrich(args):
 
     op_dir          = args['o']
@@ -387,24 +509,23 @@ def enrich(args):
     file_ext        = args['x']
     hgt1_faa        = args['hgt1']
     hgt2_faa        = args['hgt2']
-    db_dir          = args['db_dir']
+    db_dir          = args['db']
     num_threads     = args['t']
     run_diamond     = args['diamond']
     evalue_cutoff   = args['e']
     force_overwrite = args['f']
     include_desc    = args['desc']
 
-    current_file_path = '/'.join(os.path.realpath(__file__).split('/')[:-1])
-    COG_boxplot_last1row_R = '%s/COG_boxplot_last1row.R' % current_file_path
-    COG_boxplot_last2row_R = '%s/COG_boxplot_last2row.R' % current_file_path
-
     # define file name
     fun_stats_dir           = '%s/fun_stats_files'          % op_dir
     df_file                 = '%s/df_COG2020_fun_stats.txt' % op_dir
-    plot_file               = '%s/df_COG2020_fun_stats.png' % op_dir
+    plot_file               = '%s/df_COG2020_fun_stats.pdf' % op_dir
     cog_annotation_dir_faa  = '%s/COG_gnm'                  % op_dir
     cog_annotation_dir_hgt1 = '%s/COG_hgt1'                 % op_dir
     cog_annotation_dir_hgt2 = '%s/COG_hgt2'                 % op_dir
+
+    hgt1_base = '.'.join(hgt1_faa.split('.')[:-1])
+    hgt2_base = '.'.join(hgt2_faa.split('.')[:-1])
 
     # create output folder
     if os.path.isdir(op_dir) is True:
@@ -414,6 +535,15 @@ def enrich(args):
             print('%s exist, program exited!' % op_dir)
             exit()
     os.mkdir(op_dir)
+
+
+    # check input file
+    if os.path.isfile(hgt1_faa) is False:
+        print('file provided with -hgt1 not found, please double check')
+    if hgt2_faa is not None:
+        if os.path.isfile(hgt2_faa) is False:
+            print('file provided with -hgt2 not found, please double check')
+
 
     # annotate gnm
     os.mkdir(cog_annotation_dir_faa)
@@ -430,9 +560,9 @@ def enrich(args):
 
     # copy fun_stats files into fun_stats_dir
     os.mkdir(fun_stats_dir)
-    cp_cmd_faa  = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/'                                      % (cog_annotation_dir_faa, fun_stats_dir)
-    cp_hgt1_faa = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/zzzzz_HGT1_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt1, fun_stats_dir)
-    cp_hgt2_faa = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/zzzzz_HGT2_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt2, fun_stats_dir)
+    cp_cmd_faa  = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/'                              % (cog_annotation_dir_faa, fun_stats_dir)
+    cp_hgt1_faa = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/%s_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt1, fun_stats_dir, hgt1_base)
+    cp_hgt2_faa = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/%s_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt2, fun_stats_dir, hgt2_base)
     os.system(cp_cmd_faa)
     os.system(cp_hgt1_faa)
     if hgt2_faa is not None:
@@ -441,24 +571,25 @@ def enrich(args):
     # get matrix command
     boxplot_matrix_COG(fun_stats_dir, df_file, True, True, include_desc)
 
-    # get plot with R
+    ################################################## get plot with R #################################################
+
     if hgt2_faa is None:
-        get_plot_cmd = 'Rscript %s -i %s -o %s' % (COG_boxplot_last1row_R, df_file, plot_file)
+        get_boxplot(df_file, hgt1_base, None, plot_file)
     else:
-        get_plot_cmd = 'Rscript %s -i %s -o %s' % (COG_boxplot_last2row_R, df_file, plot_file)
-    print(get_plot_cmd)
-    os.system(get_plot_cmd)
+        get_boxplot(df_file, hgt1_base, hgt2_base, plot_file)
+
+    print('Done!')
 
 
 if __name__ == '__main__':
 
     enrich_parser = argparse.ArgumentParser()
     enrich_parser.add_argument('-o',       required=True,                              help='output plot')
-    enrich_parser.add_argument('-faa',     required=True,                              help='faa files of MAGs, produced by Prokka')
+    enrich_parser.add_argument('-faa',     required=True,                              help='folder of faa files, produced by Prokka')
     enrich_parser.add_argument('-x',       required=False, default='faa',              help='file extension, default: faa')
     enrich_parser.add_argument('-hgt1',    required=True,                              help='amino acid sequences of HGTs, required')
     enrich_parser.add_argument('-hgt2',    required=False, default=None,               help='amino acid sequences of HGTs, e.g., predicted with a different approach, optional')
-    enrich_parser.add_argument('-db_dir',  required=True,                              help='COG_db_dir')
+    enrich_parser.add_argument('-db',      required=True,                              help='COG_db_dir')
     enrich_parser.add_argument('-diamond', required=False, action='store_true',        help='run diamond (for big dataset), default is NCBI blastp')
     enrich_parser.add_argument('-t',       required=False, type=int, default=1,        help='number of threads')
     enrich_parser.add_argument('-e',       required=False, default=0.001, type=float,  help='evalue cutoff, default: 0.001')
@@ -467,13 +598,3 @@ if __name__ == '__main__':
     args = vars(enrich_parser.parse_args())
     enrich(args)
 
-
-'''
-
-cd /Users/songweizhi/Desktop/enrichHGT
-/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/enrich.py -faa faa_files -x faa -o demo_1HGT_desc -db_dir /Users/songweizhi/DB/COG2020 -t 10 -diamond -f -desc -hgt1 zHGTs.faa 
-
-cd /Users/songweizhi/Desktop/enrichHGT
-/usr/local/bin/python3.7 /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/enrich.py -faa faa_files -x faa -o demo_2HGT_desc -db_dir /Users/songweizhi/DB/COG2020 -t 10 -diamond -f -desc -hgt1 zHGTs.faa -hgt2 zHGTs_mmseqs.faa
-
-'''
