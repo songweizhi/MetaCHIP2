@@ -1,4 +1,5 @@
 import os
+import glob
 import random
 import dendropy
 import argparse
@@ -21,14 +22,14 @@ cat gtdb.ar53.summary.tsv gtdb.bac120.summary.tsv > gnm_taxon.txt
 
 # prepare GTDB database files
 cd db_dir
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_r214.tree.tar.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_r214.tree.tar.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/ar53_metadata_r214.tsv.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release214/214.1/bac120_metadata_r214.tsv.gz
-tar -xzvf ar53_r214.tree.tar.gz
-tar -xzvf bac120_r214.tree.tar.gz
-gunzip ar53_metadata_r214.tsv.gz
-gunzip bac120_metadata_r214.tsv.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_r226.tree.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_r226.tree.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_metadata_r226.tsv.gz
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_metadata_r226.tsv.gz
+gunzip ar53_r226.tree.gz
+gunzip bac120_r226.tree.gz
+gunzip ar53_metadata_r226.tsv.gz
+gunzip bac120_metadata_r226.tsv.gz
 
 ==========================================================================================================
 '''
@@ -288,10 +289,14 @@ def concat_trees(tree_file_1, tree_file_2, concatenated_tree):
 def RootTree(db_dir, user_gnm_taxon, user_gnm_tree_bac, user_gnm_tree_ar, rooted_tree_bac, rooted_tree_ar, rooted_tree_combined):
 
     # define file name
-    gtdb_ref_tree_ar    = '%s/ar53_r214.tree'           % db_dir
-    gtdb_ref_tree_bac   = '%s/bac120_r214.tree'         % db_dir
-    gtdb_gnm_meta_ar    = '%s/ar53_metadata_r214.tsv'   % db_dir
-    gtdb_gnm_meta_bac   = '%s/bac120_metadata_r214.tsv' % db_dir
+    gtdb_ref_tree_ar_re     = '%s/ar*_r*.tree'                  % db_dir
+    gtdb_ref_tree_bac_re    = '%s/bac*_r*.tree'                 % db_dir
+    gtdb_gnm_meta_ar_re     = '%s/ar*_metadata_r*.tsv'          % db_dir
+    gtdb_gnm_meta_bac_re    = '%s/bac*_metadata_r*.tsv'         % db_dir
+    gtdb_ref_tree_ar        = glob.glob(gtdb_ref_tree_ar_re)[0]
+    gtdb_ref_tree_bac       = glob.glob(gtdb_ref_tree_bac_re)[0]
+    gtdb_gnm_meta_ar        = glob.glob(gtdb_gnm_meta_ar_re)[0]
+    gtdb_gnm_meta_bac       = glob.glob(gtdb_gnm_meta_bac_re)[0]
 
     contain_ar_gnm = False
     contain_bac_gnm = False
@@ -331,10 +336,14 @@ def tree(args):
 
     ######################################## define file name ########################################
 
-    gtdb_ref_tree_ar                = '%s/ar53_r214.tree'                           % db_dir
-    gtdb_ref_tree_bac               = '%s/bac120_r214.tree'                         % db_dir
-    gtdb_gnm_meta_ar                = '%s/ar53_metadata_r214.tsv'                   % db_dir
-    gtdb_gnm_meta_bac               = '%s/bac120_metadata_r214.tsv'                 % db_dir
+    gtdb_ref_tree_ar_re             = '%s/ar*_r*.tree'                              % db_dir
+    gtdb_ref_tree_bac_re            = '%s/bac*_r*.tree'                             % db_dir
+    gtdb_gnm_meta_ar_re             = '%s/ar*_metadata_r*.tsv'                      % db_dir
+    gtdb_gnm_meta_bac_re            = '%s/bac*_metadata_r*.tsv'                     % db_dir
+    gtdb_ref_tree_ar                = glob.glob(gtdb_ref_tree_ar_re)[0]
+    gtdb_ref_tree_bac               = glob.glob(gtdb_ref_tree_bac_re)[0]
+    gtdb_gnm_meta_ar                = glob.glob(gtdb_gnm_meta_ar_re)[0]
+    gtdb_gnm_meta_bac               = glob.glob(gtdb_gnm_meta_bac_re)[0]
     tmp_dir                         = '%s/tmp'                                      % output_dir
     gtdb_ar53_summary_tsv           = '%s/gtdb.ar53.summary.tsv'                    % tmp_dir
     gtdb_bac120_summary_tsv         = '%s/gtdb.bac120.summary.tsv'                  % tmp_dir
@@ -472,17 +481,3 @@ if __name__ == '__main__':
     tree_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite existing results')
     args = vars(tree_parser.parse_args())
     tree(args)
-
-
-'''
-
-conda activate gtdbtk-2.3.0
-export GTDBTK_DATA_PATH=/mnt/home-db/pub/gtdb/release214
-cd /home-user/wzsong/tmp/tree
-python3 tree.py -o gnm_5bac_5ar_get_tree_wd -i gnm_5bac_5ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
-python3 tree.py -o gnm_5bac_2ar_get_tree_wd -i gnm_5bac_2ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
-python3 tree.py -o gnm_5bac_1ar_get_tree_wd -i gnm_5bac_1ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
-python3 tree.py -o gnm_5bac_0ar_get_tree_wd -i gnm_5bac_0ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
-python3 tree.py -o gnm_0bac_5ar_get_tree_wd -i gnm_0bac_5ar -x fna -t 12 -f -db /home-user/wzsong/DB/GTDB -c gtdb_classifications.tsv
-
-'''

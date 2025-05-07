@@ -1358,26 +1358,26 @@ def unique_list_elements(list_input):
 
 def combine_PG_output(PG_output_file_list_with_path, detection_ranks, combined_PG_output_normal):
 
+    HGT_concatenated_list = []
     HGT_identity_dict = dict()
     HGT_end_match_dict = dict()
-    HGT_full_length_match_dict = dict()
     HGT_direction_dict = dict()
     HGT_occurence_dict = dict()
-    HGT_concatenated_list = []
+    HGT_full_length_match_dict = dict()
     for pwd_PG_output_file in PG_output_file_list_with_path:
         file_path, file_name = os.path.split(pwd_PG_output_file)
         taxon_rank = file_path.split('_')[-1][0]
         if taxon_rank in detection_ranks:
             for PG_HGT in open(pwd_PG_output_file):
                 if not PG_HGT.startswith('Gene_1'):
-                    PG_HGT_split        = PG_HGT.strip().split('\t')
-                    gene_1              = PG_HGT_split[0]
-                    gene_2              = PG_HGT_split[1]
-                    identity            = float(PG_HGT_split[4])
-                    end_match           = PG_HGT_split[5]
-                    full_length_match   = PG_HGT_split[6]
-                    direction           = PG_HGT_split[7]
-                    concatenated        = '%s___%s' % (gene_1, gene_2)
+                    PG_HGT_split      = PG_HGT.strip().split('\t')
+                    gene_1            = PG_HGT_split[0]
+                    gene_2            = PG_HGT_split[1]
+                    identity          = float(PG_HGT_split[4])
+                    end_match         = PG_HGT_split[5]
+                    full_length_match = PG_HGT_split[6]
+                    direction         = PG_HGT_split[7]
+                    concatenated      = '%s___%s' % (gene_1, gene_2)
                     if concatenated not in HGT_concatenated_list:
                         HGT_concatenated_list.append(concatenated)
 
@@ -1459,19 +1459,16 @@ def select_seq(seq_file, seq_id_list, output_file):
 
 def run_mmseqs_linclust(pwd_combined_faa, num_threads, mmseqs_tsv, pwd_log_file):
 
-    mmseqs_db  = '%s.db'            % pwd_combined_faa
-    mmseqs_clu = '%s.db.clu'        % pwd_combined_faa
-    mmseqs_tmp = '%s.db.clu.tmp'    % pwd_combined_faa
+    mmseqs_db  = '%s.db'         % pwd_combined_faa
+    mmseqs_clu = '%s.db.clu'     % pwd_combined_faa
+    mmseqs_tmp = '%s.db.clu.tmp' % pwd_combined_faa
 
     # run mmseqs
     mmseqs_createdb_cmd  = 'mmseqs createdb %s %s > /dev/null' % (pwd_combined_faa, mmseqs_db)
     report_and_log(mmseqs_createdb_cmd, pwd_log_file, True)
     os.system(mmseqs_createdb_cmd)
 
-    #mmseqs_linclust_cmd  = 'mmseqs linclust %s %s %s --threads %s --min-seq-id 0.600 --seq-id-mode 0 --min-aln-len 200 --cov-mode 0 -c 0.75 --similarity-type 2 --remove-tmp-files > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
-    #mmseqs_cluster_cmd  = 'mmseqs cluster %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 -s 7.5 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
-    #mmseqs_cluster_cmd  = 'mmseqs cluster %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
-    mmseqs_cluster_cmd  = 'mmseqs linclust %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
+    mmseqs_cluster_cmd = 'mmseqs linclust %s %s %s --threads %s --min-seq-id 0.3 --cov-mode 1 -c 0.75 > /dev/null' % (mmseqs_db, mmseqs_clu, mmseqs_tmp, num_threads)
     report_and_log(mmseqs_cluster_cmd, pwd_log_file, True)
     os.system(mmseqs_cluster_cmd)
 
@@ -1543,9 +1540,9 @@ def all_vs_all_blastn_by_mmseqs_clusters(mmseqs_tsv, ffn_dir, min_cluster_size, 
         # run blastn
         blastn_cmd_list = []
         for each_gnm in gnm_to_clsutered_seq_dict:
-            pwd_ffn         = '%s/%s.ffn'                           % (pwd_subset_dir, each_gnm)
-            pwd_blatn_op    = '%s/%s_blastn.tab'                    % (pwd_subset_blastn_op, each_gnm)
-            blastn_cmd      = 'blastn -query %s -db %s -out %s %s'  % (pwd_ffn, pwd_subset_ffn, pwd_blatn_op, blast_parameters)
+            pwd_ffn      = '%s/%s.ffn'                          % (pwd_subset_dir, each_gnm)
+            pwd_blatn_op = '%s/%s_blastn.tab'                   % (pwd_subset_blastn_op, each_gnm)
+            blastn_cmd   = 'blastn -query %s -db %s -out %s %s' % (pwd_ffn, pwd_subset_ffn, pwd_blatn_op, blast_parameters)
             blastn_cmd_list.append(blastn_cmd)
 
         report_and_log(('Running all-vs-all blastn with %s cores, subset %s/%s' % (num_threads, each_subset, len(gnm_to_clsutered_seq_dod))), pwd_log_file, True)
@@ -1582,7 +1579,6 @@ def PI(MetaCHIP_wd, pwd_tmp_dir, input_genome_basename_list, gbk_dir, gbk_ext, G
             each_genome_split = each_genome.strip().split(',')
             group_id = each_genome_split[0]
             genome_name = each_genome_split[1]
-
             genomes_with_grouping.add(genome_name)
 
             if group_id not in group_id_2_genome_dict:

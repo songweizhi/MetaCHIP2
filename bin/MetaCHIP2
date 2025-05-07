@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2017, Shan Zhang, Torsten Thomas and Weizhi Song (songwz03@gmail.com).
+# Copyright (C) 2024, Shan Zhang, Torsten Thomas and Weizhi Song (songwz03@gmail.com).
 # MetaCHIP2 is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -143,13 +143,12 @@ if __name__ == '__main__':
 
 cd /Users/songweizhi/PycharmProjects/MetaCHIP2
 rm -r build dist MetaCHIP2.egg-info
-python setup.py sdist bdist_wheel
+python3 setup.py sdist bdist_wheel
 twine upload dist/*
 
-songweizhi
-shan88
+__token__
 
-pip install --upgrade MetaCHIP2
+pip3 install --upgrade MetaCHIP2        
 
 '''
 

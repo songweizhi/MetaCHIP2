@@ -1,8 +1,14 @@
 
 ############################################### Usage example ##############################################
 
-# COG annotation results for the HGTs must be in the last one row
-# Rscript ~/Dropbox/R_scripts/for_plot/COG_summary_boxplot_last1row.R -i matrix.csv -o plot.png
+# Data for the HGTs must be in the last one row
+# Tab separated
+
+# cd /Users/songweizhi/Desktop/NASA/to_Camilla_2
+# Rscript /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/COG_boxplot_last1row.R -i faa_files_with_HGTs_COG2020_cate_HGT.txt -o faa_files_with_HGTs_COG2020_cate_HGT.pdf
+# Rscript /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/COG_boxplot_last1row.R -i faa_files_with_HGTs_COG2020_cate_HGT_flight.txt -o faa_files_with_HGTs_COG2020_cate_HGT_flight.pdf
+# Rscript /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/COG_boxplot_last1row.R -i faa_files_with_HGTs_COG2020_cate_HGT_pre_flight.txt -o faa_files_with_HGTs_COG2020_cate_HGT_pre_flight.pdf
+# Rscript /Users/songweizhi/PycharmProjects/MetaCHIP2/MetaCHIP2/COG_boxplot_last1row.R -i faa_files_with_HGTs_COG2020_cate_HGT_post_flight.txt -o faa_files_with_HGTs_COG2020_cate_HGT_post_flight.pdf
 
 ############################################################################################################
 
@@ -11,7 +17,6 @@ check.packages <- function(pkg){
     if (length(new.pkg))
         install.packages(new.pkg, dependencies = TRUE)
     sapply(pkg, require, character.only = 1)}
-
 
 # install packages if not detected
 packages<-c("optparse", "ggplot2")
@@ -25,7 +30,7 @@ opt = parse_args(opt_parser);
 
 ############################################### read in data ###############################################
 
-my_data = read.csv(opt$input, row.names = 1)
+my_data = read.csv(opt$input, row.names = 1, sep = "\t")
 
 # remove columns with all zero values
 my_data = my_data[, colSums(my_data != 0) > 0]
@@ -44,7 +49,7 @@ for(each_col in names(my_data)){
   each_col_quatile_low = each_col_quatile[[2]]
   each_col_quatile_high = each_col_quatile[[4]]
   each_col_HGT = my_data[each_col][row_num,]
-  
+
   current_shape = ''
   current_color = ''
   if ((each_col_HGT - each_col_quatile_high) > 0){
@@ -67,19 +72,19 @@ for(each_col in names(my_data)){
 # png(filename=opt$out, units="in", width=9, height=6, pointsize=10, res=300)
 pdf(file=opt$out, width=9, height=6, pointsize=10)
 
-ggplot() + 
+ggplot() +
   geom_boxplot(data = stack(my_data[1:(row_num-1),]), aes(x = ind, y = values)) +
   geom_point(data = data.frame(x = factor(colnames(my_data)), y = as.numeric(my_data[row_num,])),
              aes(x=x, y=y), color=color_list, fill=color_list, shape=shape_list, stroke=0.8, size=2.5) +
   theme_bw() + # white background
-  theme(panel.border = element_blank(), 
+  theme(panel.border = element_blank(),
         panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), 
+        panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),
-        axis.text.x = element_text(colour="black",size=9,angle=270,hjust=0,vjust=.5,face="plain"),
-        axis.text.y = element_text(colour="black",size=9,angle=0,hjust=0,vjust=0,face="plain"),
-        axis.title.x = element_text(colour="black",size=9,angle=0,hjust=.5,vjust=0,face="plain"),
-        axis.title.y = element_text(colour="black",size=9,angle=90,hjust=.5,vjust=0,face="plain"))+
+        axis.text.x  = element_text(colour="black",size=9,angle=270,hjust=0, vjust=.5,face="plain"),
+        axis.text.y  = element_text(colour="black",size=9,angle=0,  hjust=0, vjust=0, face="plain"),
+        axis.title.x = element_text(colour="black",size=9,angle=0,  hjust=.5,vjust=0, face="plain"),
+        axis.title.y = element_text(colour="black",size=9,angle=90, hjust=.5,vjust=0, face="plain"))+
   labs(x = "Category", y = 'Proportion')
 
 invisible(dev.off())
