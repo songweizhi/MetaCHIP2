@@ -36,3 +36,4 @@ setup(name="MetaCHIP2",
       include_package_data=True,
       install_requires=['biopython', 'matplotlib', 'numpy', 'scipy', 'reportlab', 'ete3', 'DendroPy', 'pycirclize', 'pandas', 'pytz'],
       scripts=['bin/MetaCHIP2'])
+
