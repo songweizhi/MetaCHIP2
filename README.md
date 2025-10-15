@@ -17,10 +17,7 @@ What has been changed:
    you can use [Prokka](https://github.com/tseemann/prokka) to generate them.
    please note that contig ids still need to be shorter than 18 bp.
 
-1. The user now need to You need to provide a species tree for your input genome.
-
-   The reasion I removed it from MetaCHIP2 is that 
-   make the 
+1. The user now need to provide a species tree for your input genome.
 
    GTDB-Tk is recommended. I have prepared a wrapper called `infer` to infer the species tree using GTDB-Tk.
 
