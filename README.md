@@ -15,19 +15,28 @@ Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/R
 What has been changed:
 ---
 
-1. Input genomes need to be provided in genbank format (previously in fasta format), 
-   you can use [Prokka](https://github.com/tseemann/prokka) to generate them.
-   please note that contig ids still need to be shorter than 18 bp.
+1. For MetaCHIP2 analysis, the input genomes must be in GenBank format. If your genomes are currently in FASTA format, you 
+will need to perform an initial annotation step before feeding them to MetaCHIP2. This pre-annotation strategy offers 
+several advantages: **1)** this could bypass the need for repeated genome annotation when exploring MetaCHIP2 parameters, 
+thereby reducing computational time. **2)** this could minimize the introduction of variations from the annotation process 
+itself, and thus ensures better comparability of predictions between independent MetaCHIP2 runs. You can use 
+MetaCHIP2's `prokka` module to batch generate the .gbk files for your input genomes.
 
-1. The user now need to provide a species tree for your input genome.
 
-   GTDB-Tk is recommended. I have prepared a wrapper called `infer` to infer the species tree using GTDB-Tk.
+1. The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
+which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
+You can use MetaCHIP2's `tree` module to infer the species tree, This module wraps GTDB-Tk's identify, align, and infer functionalities.
 
-1. The inferred genome/species tree need to be rooted, you can use `MetaCHIP2 root -h` to root the tree.
 
-1. The PI and BP modules in MetaCHIP1 has now been merged into a single module called `detect`.
+1. The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
+If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
+If you use your own way to get the species tree, please make sure that the species tree is properly rooted.
 
-1. You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
+
+1. The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
+
+1. You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
+
 
 Change Log:
 ---
@@ -77,7 +86,21 @@ How to install:
 How to run:
 ---
 
-+ The input files for MetaCHIP include a folder that holds the sequence file ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/human_gut_bins))
+
+1. Input files for MetaCHIP2 must be in GenBank format. You can use MetaCHIP2's `prokka` module to batch generate the .gbk files for all your input genomes. For more information, please refer to `MetaCHIP2 prokka -h`. To prevent potential Prokka errors, please ensure that **contig IDs remain shorter than 18 characters**.
+
+1. The user now need to provide a species tree for your input genome. GTDB-Tk is recommended. I have prepared a wrapper called `tree` to infer the species tree using GTDB-Tk.
+
+1. The inferred genome/species tree need to be rooted, you can use `MetaCHIP2 root -h` to root the tree.
+
+1. The PI and BP modules in MetaCHIP1 has now been merged into a single module called `detect`.
+
+1. You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
+
+
+suppose you have a list of genomes that you want to detect HGTs
+
++ The input files for MetaCHIP2 include a folder that holds the gbk file ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/human_gut_bins))
 of all query genomes, as well as a text file which provides taxonomic classification ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/human_gut_bins_GTDB.tsv)) 
 or customized grouping ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/customized_grouping.txt))
 of your input genomes. File extension of your input genomes (e.g. fa, fasta) should **NOT** be included in the taxonomy or grouping file.
@@ -88,7 +111,7 @@ of your input genomes. File extension of your input genomes (e.g. fa, fasta) sho
 
       gtdbtk classify_wf --cpus 12 --pplacer_cpus 1 --genome_dir gnms --skip_ani_screen --extension fna --out_dir gnms_GTDB_r214 --prefix gnms_GTDB_r214
 
-+ Options for argument '-r' in the PI and BP modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species).
++ Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species).
 
 + Some examples: 
 
