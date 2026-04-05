@@ -15,33 +15,27 @@ Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/R
 What has been changed:
 ---
 
-1. For MetaCHIP2 analysis, the input genomes must be in GenBank format. If your genomes are currently in FASTA format, you 
++ For MetaCHIP2 analysis, the input genomes must be in GenBank format. If your genomes are currently in FASTA format, you 
 will need to perform an initial annotation step before feeding them to MetaCHIP2. This pre-annotation strategy offers 
 several advantages: **1)** this could bypass the need for repeated genome annotation when exploring MetaCHIP2 parameters, 
 thereby reducing computational time. **2)** this could minimize the introduction of variations from the annotation process 
 itself, and thus ensures better comparability of predictions between independent MetaCHIP2 runs. You can use 
 MetaCHIP2's `prokka` module to batch generate the .gbk files for your input genomes.
 
-1. The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
++ The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
 which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
 You can use MetaCHIP2's `tree` module to infer the species tree, This module wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 
-1. The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
++ The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
 If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
-1. The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
++ The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
 
-1. You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
++ You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
 
++ A changelog is [here](MetaCHIP2/VERSION).
 
-Change Log:
----
-
-* v2.3.0 - module added: `circos`
-* v2.2.0 - module added: `enrich`
-* v2.1.0 - module added: `tree`
-* v2.0.0 - Initial release
 
 Dependencies:
 ---
@@ -113,7 +107,6 @@ If you use your own way to get the species tree, please make sure that it is pro
        MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pco
        MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r ofg
 
-
 Output files:
 ---
 
@@ -136,3 +129,7 @@ Output files:
  
 1. Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**.
     ![Gene_flow](images/Gene_flow.jpg)
+
+   If you want to get gene flow plot for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the detected_HGTs.txt and run the `circos` module. You can find the grouping file from MetaCHIP2's output directory.
+
+       MetaCHIP2 circos -o circos_2.pdf -l detected_HGTs_subset.txt -g grouping.txt
