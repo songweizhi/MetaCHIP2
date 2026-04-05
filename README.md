@@ -130,6 +130,6 @@ Output files:
 1. Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**.
     ![Gene_flow](images/Gene_flow.jpg)
 
-   If you want to get gene flow plot for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the detected_HGTs.txt and run the `circos` module. You can find the grouping file from MetaCHIP2's output directory.
+   If you want to get gene flow plot for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. You can find the grouping file from MetaCHIP2's output directory.
 
        MetaCHIP2 circos -o circos_2.pdf -l detected_HGTs_subset.txt -g grouping.txt
