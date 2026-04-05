@@ -23,11 +23,11 @@ What has been changed:
 
    GTDB-Tk is recommended. I have prepared a wrapper called `infer` to infer the species tree using GTDB-Tk.
 
-1. The inferred species tree need to be rooted, `MetaCHIP2 root -h`
+1. The inferred genome/species tree need to be rooted, you can use `MetaCHIP2 root -h` to root the tree.
 
-1. You can now used `mmseqs linclust` to speed up all-vs-all blastn.
+1. The PI and BP modules in MetaCHIP1 has now been merged into a single module called `detect`.
 
-1. The PI and BP modules in MetaCHIP1 has now been merged into one module called `detect`.
+1. You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
 
 Change Log:
 ---
