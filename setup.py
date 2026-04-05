@@ -22,7 +22,7 @@ Hong Kong
 '''
 
 
-setup(name="MetaCHIP2",
+setup(name="metachip2",
       version=version(),
       long_description=__long_description__,
       license="GPL3+",

@@ -139,12 +139,12 @@ if __name__ == '__main__':
         exit()
 
 
-'''
+upload_to_pypi_cmd = '''
 
 cd /Users/songweizhi/PycharmProjects/MetaCHIP2
 rm -r build dist MetaCHIP2.egg-info
 python3 setup.py sdist bdist_wheel
-twine upload dist/*
+twine upload dist/* --verbose
 
 __token__
 
@@ -152,3 +152,8 @@ pip3 install --upgrade MetaCHIP2
 
 '''
 
+'''
+When encounter the following error, try to replace name="MetaCHIP2" to name="metachip2" in the setup.py. 
+HTTPError: 400 Bad Request from https://upload.pypi.org/legacy/
+Bad Request  
+'''

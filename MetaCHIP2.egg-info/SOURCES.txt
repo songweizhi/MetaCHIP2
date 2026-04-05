@@ -20,9 +20,9 @@ MetaCHIP2/prokka.py
 MetaCHIP2/stats.py
 MetaCHIP2/tmp_1.py
 MetaCHIP2/tree.py
-MetaCHIP2.egg-info/PKG-INFO
-MetaCHIP2.egg-info/SOURCES.txt
-MetaCHIP2.egg-info/dependency_links.txt
-MetaCHIP2.egg-info/requires.txt
-MetaCHIP2.egg-info/top_level.txt
 bin/MetaCHIP2
+metachip2.egg-info/PKG-INFO
+metachip2.egg-info/SOURCES.txt
+metachip2.egg-info/dependency_links.txt
+metachip2.egg-info/requires.txt
+metachip2.egg-info/top_level.txt

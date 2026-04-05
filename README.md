@@ -61,10 +61,11 @@ Dependencies:
 [Ranger-DTL 2.0](https://compbio.engr.uconn.edu/software/RANGER-DTL/) (part of MetaCHIP, no need to install) and 
 [FastTree](http://www.microbesonline.org/fasttree/).
 
-How to install:
+
+Install MetaCHIP2 with Conda:
 ---
 
-1. Install MetaCHIP2 with Conda. As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-loaded with GTDB-Tk.
++ As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-installed with GTDB-Tk.
  
        conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.6.1
        conda activate metachip2env
@@ -75,7 +76,7 @@ How to install:
        conda install -c conda-forge legacy-cgi
        conda install -c conda-forge r-base
 
-1. Upgrade MetaCHIP2 with: `pip3 install --upgrade MetaCHIP2`
++ Upgrade MetaCHIP2 with: `pip3 install --upgrade MetaCHIP2`
 
 
 How to run:
