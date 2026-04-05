@@ -22,16 +22,13 @@ thereby reducing computational time. **2)** this could minimize the introduction
 itself, and thus ensures better comparability of predictions between independent MetaCHIP2 runs. You can use 
 MetaCHIP2's `prokka` module to batch generate the .gbk files for your input genomes.
 
-
 1. The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
 which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
 You can use MetaCHIP2's `tree` module to infer the species tree, This module wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 
-
 1. The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
 If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
-If you use your own way to get the species tree, please make sure that the species tree is properly rooted.
-
+If you use your own way to get the species tree, please make sure that it is properly rooted.
 
 1. The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
 
