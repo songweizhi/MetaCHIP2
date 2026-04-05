@@ -101,7 +101,7 @@ If you use your own way to get the species tree, please make sure that it is pro
        
        MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r p -b path/to/previous/run/blastn_op
 
-+ [**GTDB-Tk**](https://github.com/Ecogenomics/GTDBTk) is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
++ GTDB-Tk is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
 
 + Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species):
 
