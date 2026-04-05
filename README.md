@@ -2,7 +2,6 @@
 [![pypi licence](https://img.shields.io/pypi/l/MetaCHIP.svg)](https://opensource.org/licenses/gpl-3.0.html)
 [![pypi version](https://img.shields.io/pypi/v/MetaCHIP2.svg)](https://pypi.python.org/pypi/MetaCHIP2) 
 
-
 Contact
 ---
 
