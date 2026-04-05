@@ -11,6 +11,8 @@ Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/R
 
 <sup>2</sup> Department of Ocean Science, Hong Kong University of Science and Technology, Hong Kong
 
+Email: shanbio@hku.hk, ocessongwz@ust.hk
+
 What has been changed:
 ---
 
