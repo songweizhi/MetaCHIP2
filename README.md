@@ -1,14 +1,16 @@
 
 [![pypi licence](https://img.shields.io/pypi/l/MetaCHIP.svg)](https://opensource.org/licenses/gpl-3.0.html)
 [![pypi version](https://img.shields.io/pypi/v/MetaCHIP2.svg)](https://pypi.python.org/pypi/MetaCHIP2) 
-[![DOI         ](https://img.shields.io/static/v1.svg?label=DOI&message=10.1186/s40168-019-0649-y&color=orange)](https://doi.org/10.1186/s40168-019-0649-y)
 
-Publication:
+
+Contact
 ---
 
-+ In preparation
-+ Contact: Weizhi Song (songwz03@gmail.com)
-+ Department of Ocean Science, Hong Kong University of Science and Technology, Hong Kong
+Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/Research-Assistant-Professor/Shan-ZHANG/Shan-ZHANG-Profile))<sup>1</sup> and Weizhi Song ([link](https://facultyprofiles.hkust.edu.hk/profiles.php?profile=weizhi-song-ocessongwz))<sup>2</sup>
+
+<sup>1</sup> Department of Pharmacology and Pharmacy, LKS Faculty of Medicine, The University of Hong Kong, Hong Kong
+
+<sup>2</sup> Department of Ocean Science, Hong Kong University of Science and Technology, Hong Kong
 
 What has been changed:
 ---
@@ -65,6 +67,7 @@ How to install:
        conda install -c bioconda diamond
        conda install -c bioconda mmseqs2
        conda install -c conda-forge r-base
+       conda install -c conda-forge legacy-cgi
 
 1. Type `pip3 install --upgrade MetaCHIP2` to get the latest version.
 
