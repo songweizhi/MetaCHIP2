@@ -83,38 +83,37 @@ How to install:
 How to run:
 ---
 
++ The input files for MetaCHIP2 include a folder that holds the gbk file of all query genomes, as well as a text file which provides taxonomic classification ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/human_gut_bins_GTDB.tsv)) 
+or customized grouping ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/customized_grouping.txt))
+of the input genomes. File extension (e.g., gbk) of the input genomes should **NOT** be included in the taxonomy or grouping file.
 
-1. Input files for MetaCHIP2 must be in GenBank format. You can use MetaCHIP2's `prokka` module to batch generate the .gbk files for all your input genomes. For more information, please refer to `MetaCHIP2 prokka -h`. To prevent potential Prokka errors, please ensure that **contig IDs remain shorter than 18 characters**.
+1. Input files for MetaCHIP2 must be in GenBank format. You can use MetaCHIP2's `prokka` module to batch generate the .gbk files for all your input genomes. To prevent potential Prokka errors, please ensure that **contig IDs remain shorter than 18 characters**.
 
-1. The user now need to provide a species tree for your input genome. GTDB-Tk is recommended. I have prepared a wrapper called `tree` to infer the species tree using GTDB-Tk.
+       MetaCHIP2 prokka -h
 
-1. The inferred genome/species tree need to be rooted, you can use `MetaCHIP2 root -h` to root the tree.
+1. The user now need to provide a species tree for the input genome. You can use MetaCHIP2's `tree` module to infer the species tree, which wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
+The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
+If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
+If you use your own way to get the species tree, please make sure that it is properly rooted.
 
-1. The PI and BP modules in MetaCHIP1 has now been merged into a single module called `detect`.
+       MetaCHIP2 tree -h
 
 1. You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
+       
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pcofg -m
 
+2. If you already have the all-vs-all blastn results on the same set of input genomes from a previous run, you can skip the blastn  by providing the blastn results with '-b'.
+       
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r p -b path/to/previous/run/blastn_op
 
-suppose you have a list of genomes that you want to detect HGTs
++ [**GTDB-Tk**](https://github.com/Ecogenomics/GTDBTk) is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
 
-+ The input files for MetaCHIP2 include a folder that holds the gbk file ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/human_gut_bins))
-of all query genomes, as well as a text file which provides taxonomic classification ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/human_gut_bins_GTDB.tsv)) 
-or customized grouping ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/customized_grouping.txt))
-of your input genomes. File extension of your input genomes (e.g. fa, fasta) should **NOT** be included in the taxonomy or grouping file.
++ Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species):
 
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pcofg
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pco
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r ofg
 
-
-+ [**GTDB-Tk**](https://github.com/Ecogenomics/GTDBTk) is recommended for taxonomic classification of input genomes. Only the first two columns ('user_genome' and 'classification') in GTDB-Tk's output file are needed. 
-
-      gtdbtk classify_wf --cpus 12 --pplacer_cpus 1 --genome_dir gnms --skip_ani_screen --extension fna --out_dir gnms_GTDB_r214 --prefix gnms_GTDB_r214
-
-+ Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species).
-
-+ Some examples: 
-
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -p demo -r pcofg -m
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -p demo -r pco
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -p demo -r p -b blastn_op
 
 Output files:
 ---

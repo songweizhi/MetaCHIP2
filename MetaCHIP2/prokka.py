@@ -7,17 +7,37 @@ import multiprocessing as mp
 prokka_usage = '''
 ======================== prokka example commands ========================
 
+# annotate Archaea
+MetaCHIP2 prokka -i gnm_folder -x fa -t 12 -d Archaea
+
+# annotate Bacteria
+MetaCHIP2 prokka -i gnm_folder -x fa -t 12 -d Bacteria
+
+# annotate both Archaea and Bacteria
 MetaCHIP2 prokka -i gnm_folder -x fa -t 12 -d genome_domain.txt
+
+# annotate MAGs
+MetaCHIP2 prokka -i mag_folder -x fa -t 12 -m MAG
+
+# annotate nonMAGs
+MetaCHIP2 prokka -i mag_folder -x fa -t 12 -m nonMAG
+
+# annotate both MAGs and nonMAGs
 MetaCHIP2 prokka -i mag_folder -x fa -t 12 -m genome_type.txt
 
-# gnm_domain.txt (no file extension, tab separated)
+# Annotate genomes contain both Archaea and Bacteria, and both MAGs and nonMAGs.
+MetaCHIP2 prokka -i gnm_folder -x fa -t 12 -d genome_domain.txt -m genome_type.txt
+
+# format of gnm_domain.txt (no file extension, tab separated)
 # genomes not included in gnm_domain.txt will be treated as "Bacteria"
 gnm_1   Archaea
 gnm_2   Bacteria
    
-# genome_type.txt (no file extension, tab separated)
+# format of genome_type.txt (no file extension, tab separated)
 # genomes not included in gnm_type.txt will be treated as "nonMAG"
-gnm_1   MAG
+mag_1   MAG
+mag_2   MAG
+gnm_1   nonMAG
 gnm_2   nonMAG
 
 =========================================================================
