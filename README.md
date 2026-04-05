@@ -64,20 +64,18 @@ Dependencies:
 How to install:
 ---
 
-1. Install MetaCHIP2 with Conda
+1. Install MetaCHIP2 with Conda. As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-loaded with GTDB-Tk.
  
-       conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.3.2
-       source activate metachip2env
+       conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.6.1
+       conda activate metachip2env
        pip install MetaCHIP2
        conda install -c bioconda blast
        conda install -c bioconda diamond
        conda install -c bioconda mmseqs2
-       conda install -c conda-forge r-base
        conda install -c conda-forge legacy-cgi
+       conda install -c conda-forge r-base
 
-1. Type `pip3 install --upgrade MetaCHIP2` to get the latest version.
-
-1. :warning: If you clone the repository directly off GitHub you might end up with a version that is still under development.
+1. Upgrade MetaCHIP2 with: `pip3 install --upgrade MetaCHIP2`
 
 
 How to run:

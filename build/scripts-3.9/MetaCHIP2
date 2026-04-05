@@ -146,10 +146,9 @@ rm -r build dist MetaCHIP2.egg-info
 python3 setup.py sdist bdist_wheel
 twine upload dist/*
 
-songweizhi
-shan88
+__token__
 
-pip install --upgrade MetaCHIP2
+pip3 install --upgrade MetaCHIP2        
 
 '''
 
@@ -159,3 +158,4 @@ to_do = '''
 2. !!!!!!!!!! get file list by RE is very slow (put files to delete into a tmp folder, then delete the folder)
 
 '''
+

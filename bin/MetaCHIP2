@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2024, Shan Zhang, Torsten Thomas and Weizhi Song (songwz03@gmail.com).
+# Copyright (C) 2026, Shan Zhang and Weizhi Song (songwz03@gmail.com).
 # MetaCHIP2 is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -149,13 +149,6 @@ twine upload dist/*
 __token__
 
 pip3 install --upgrade MetaCHIP2        
-
-'''
-
-to_do = '''
-
-1. if no PG validated HGTs, skip plot, but not report error
-2. !!!!!!!!!! get file list by RE is very slow (put files to delete into a tmp folder, then delete the folder)
 
 '''
 

@@ -32,8 +32,8 @@ detect_usage = '''
 
 # requires: blast+, mafft, fasttree, mmseqs2 (optional) 
 
-MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -r pco -m
-MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -v -t 12 -f -r pco -b blastn_op
+MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -r pco -m
+MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -r pco -b blastn_op
 
 =========================================================================================================
 '''

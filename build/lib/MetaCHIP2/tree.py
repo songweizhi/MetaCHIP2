@@ -12,16 +12,19 @@ tree_usage = '''
 
 requires: gtdbtk
 
-MetaCHIP2 tree -o get_rooted_tree_wd -i gnm_dir -x fna -t 12 -f -db db_dir
-MetaCHIP2 tree -o get_rooted_tree_wd -i gnm_dir -x fna -t 12 -f -db db_dir -c gnm_taxon.txt
+MetaCHIP2 tree -i gnm_dir -x fna -o get_species_tree -t 12 -f -db path/to/gtdbtk_db_dir
+MetaCHIP2 tree -i gnm_dir -x fna -o get_species_tree -t 12 -f -db path/to/gtdbtk_db_dir -c gnm_taxon.txt
 
-# If you already have the classifications of your input genomes and want to used it as input to the 
-tree module, you'll need to combine the classification results for both the archaeal and bacterial 
-genomes into a single file, for example using: 
+# If you did not provide taxonomic classifications of the input genomes with "-c", the "tree" module 
+will first run "gtdbtk classify_wf" to classify your genomes.
+
+# If you already have the classifications and want to use it as input to the tree module, you may need 
+to combine the classification results for both the archaea and bacteria into a single file, for example: 
 cat gtdb.ar53.summary.tsv gtdb.bac120.summary.tsv > gnm_taxon.txt
 
 # prepare GTDB database files
-cd db_dir
+mkdir gtdbtk_db_dir
+cd gtdbtk_db_dir
 wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_r226.tree.gz
 wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_r226.tree.gz
 wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_metadata_r226.tsv.gz
