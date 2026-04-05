@@ -25,7 +25,7 @@ MetaCHIP2's `prokka` module to batch generate the .gbk files for your input geno
 
 1. The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
 which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
-You can use MetaCHIP2's `tree` module to infer the species tree, This module wraps GTDB-Tk's identify, align, and infer functionalities.
+You can use MetaCHIP2's `tree` module to infer the species tree, This module wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 
 
 1. The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
