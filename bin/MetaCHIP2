@@ -39,7 +39,6 @@ def print_main_help():
        prokka   ->  A wrapper for running Prokka in batch manner
        circos   ->  Visualize HGTs with circos plot
        enrich   ->  Enrichment of COG functions in HGTs
-       stats    ->  (to be added) Get stats of predicted HGTs
            
     # Upgrade with: pip3 install --upgrade MetaCHIP2
     ''' % version(config_dict)
