@@ -42,20 +42,20 @@ If you use your own way to get the species tree, please make sure that it is pro
 Dependencies:
 ---
 
-Python libraries: 
-+ [BioPython](https://github.com/biopython/biopython.github.io/) 
-+ [Numpy](http://www.numpy.org)
-+ [SciPy](https://www.scipy.org)
-+ [Matplotlib](http://matplotlib.org)
-+ [ETE3](http://etetoolkit.org)
++ Python libraries: 
+[BioPython](https://github.com/biopython/biopython.github.io/), 
+[Numpy](http://www.numpy.org),
+[SciPy](https://www.scipy.org),
+[Matplotlib](http://matplotlib.org) and 
+[ETE3](http://etetoolkit.org).
 
-Third-party software: 
-+ [GTDBTk](https://github.com/Ecogenomics/GTDBTk) 
-+ [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-+ [MMseqs2](https://github.com/soedinglab/MMseqs2)(optional)
-+ [MAFFT](https://mafft.cbrc.jp/alignment/software/)
-+ [Ranger-DTL 2.0](https://compbio.engr.uconn.edu/software/RANGER-DTL/) (part of MetaCHIP, no need to install) 
-+ [FastTree](http://www.microbesonline.org/fasttree/)
++ Third-party software: 
+[GTDBTk](https://github.com/Ecogenomics/GTDBTk), 
+[BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download),
+[MMseqs2](https://github.com/soedinglab/MMseqs2), 
+[MAFFT](https://mafft.cbrc.jp/alignment/software/),
+[Ranger-DTL 2.0](https://compbio.engr.uconn.edu/software/RANGER-DTL/) and 
+[FastTree](http://www.microbesonline.org/fasttree/).
 
 
 Install MetaCHIP2 with Conda:
