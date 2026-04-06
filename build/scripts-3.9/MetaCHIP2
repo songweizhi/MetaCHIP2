@@ -38,7 +38,6 @@ def print_main_help():
        tree     ->  Infer genome tree
        prokka   ->  A wrapper for running Prokka in batch manner
        circos   ->  Visualize HGTs with circos plot
-       stats    ->  (to be added) Get stats of predicted HGTs
        enrich   ->  Enrichment of COG functions in HGTs
            
     # Upgrade with: pip3 install --upgrade MetaCHIP2
@@ -153,7 +152,8 @@ pip3 install --upgrade MetaCHIP2
 '''
 
 '''
-When encounter the following error, try to replace name="MetaCHIP2" to name="metachip2" in the setup.py. 
+When encounter the following error, try to replace name="MetaCHIP2" to name="metachip2" in the setup.py 
+
 HTTPError: 400 Bad Request from https://upload.pypi.org/legacy/
 Bad Request  
 '''

@@ -1343,7 +1343,7 @@ def pycircos(data_matrix, sep_symbol, plot_out):
                                            r_lim=(90, 95),      # Outer track radius limit region (0 - 100)
                                            cmap="tab10",        # Colormap assigned to each outer track and link.
                                            order='desc',        # asc, desc; sort in ascending(or descending) order by node size.
-                                           ticks_interval=1,    # Ticks interval. If None, ticks are not plotted.
+                                           ticks_interval=2,    # Ticks interval. If None, ticks are not plotted.
                                            label_kws=dict(size=9, orientation="vertical"),
                                            link_kws=dict(direction=1, color='white', ec="black", lw=0))
     fig = circos.plotfig()
