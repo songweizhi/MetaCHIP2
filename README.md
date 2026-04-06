@@ -5,7 +5,7 @@
 Contact
 ---
 
-Dr. Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/Research-Assistant-Professor/Shan-ZHANG/Shan-ZHANG-Profile))<sup>1</sup> and Dr. Weizhi Song <sup>2</sup>
+Dr. Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/Research-Assistant-Professor/Shan-ZHANG/Shan-ZHANG-Profile))<sup>1</sup> and Dr. Weizhi Song ([link](https://facultyprofiles.hkust.edu.hk/profiles.php?profile=weizhi-song-ocessongwz))<sup>2</sup>
 
 <sup>1</sup> Department of Pharmacology and Pharmacy, LKS Faculty of Medicine, The University of Hong Kong, Hong Kong
 
@@ -18,11 +18,11 @@ What has been changed:
 ---
 
 + For MetaCHIP2 analysis, the input genomes must be in GenBank format. If your genomes are currently in FASTA format, you 
-will need to perform an initial annotation step before feeding them to MetaCHIP2. This pre-annotation strategy offers 
-several advantages: **1)** this could bypass the need for repeated genome annotation when exploring MetaCHIP2 parameters, 
-thereby reducing computational time. **2)** this could minimize the introduction of variations from the annotation process 
-itself, and thus ensures better comparability of predictions between independent MetaCHIP2 runs. You can use 
-MetaCHIP2's `prokka` module to batch generate the .gbk files for your input genomes.
+will need to perform an initial annotation step before feeding them to MetaCHIP2. This pre-annotation strategy could 
+several advantages: 
+  1) could bypass the need for repeated genome annotation when exploring MetaCHIP2 parameters, thereby reducing computational time. 
+  2) minimize the introduction of variations from the annotation process itself, and thus ensures better comparability 
+  of predictions between independent MetaCHIP2 runs. You can use MetaCHIP2's `prokka` module to batch generate the .gbk files for your input genomes.
 
 + The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
 which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
