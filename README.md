@@ -32,11 +32,11 @@ You can use MetaCHIP2's `tree` module to infer the species tree, This module wra
 If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
-+ You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
-
 + The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
 
-+ The output files are now organized more intuitively, making them easier to understand.
++ You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
+
++ The output files are now organized in a more intuitively way, making them easier to understand.
 
 + A changelog is [here](MetaCHIP2/VERSION).
 
