@@ -69,10 +69,11 @@ Install MetaCHIP2 with Conda:
        conda activate metachip2env
        pip install MetaCHIP2
        conda install -c bioconda blast
-       conda install -c bioconda diamond
+       conda install -c bioconda mafft
        conda install -c bioconda mmseqs2
-       conda install -c conda-forge legacy-cgi
+       conda install -c bioconda diamond
        conda install -c conda-forge r-base
+       conda install -c conda-forge legacy-cgi
 
 + Upgrade MetaCHIP2 with: `pip3 install --upgrade MetaCHIP2`
 
@@ -97,19 +98,19 @@ If you use your own way to get the species tree, please make sure that it is pro
 
 + You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
        
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pcofg -m
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg -m
 
 + If you already have the all-vs-all blastn results on the same set of input genomes from a previous run, you can skip the blastn  by providing the blastn results with '-b'.
        
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r p -b path/to/previous/run/blastn_op
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r p -b path/to/previous/run/blastn_op
 
 + GTDB-Tk is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
 
 + Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species):
 
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pcofg
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r pco
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -p demo -r ofg
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pco
+       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r ofg
 
 Output files:
 ---
@@ -124,7 +125,7 @@ Output files:
     |Occurence(taxon_ranks)|Only for multiple-level detections. If you performed HGT detection at phylum, class and order levels, a number of "011" means current HGT was identified at class and order levels, but not phylum level.|
     |End_match|End match or not (see examples below)|
     |Full_length_match|Full length match or not (see examples below)|
-    |Direction|The direction of gene flow. Number in parenthesis refers to the percentage of this direction being observed if this HGT was detected at multiple ranks and different directions were provided by Ranger-DTL.|   
+    |Direction|The direction of gene flow. Number in parenthesis refers to the percentage of this direction being observed if this HGT was detected at multiple ranks and different directions were provided by Ranger-DTL.
 
 1. Nucleotide and amino acid sequences of identified HGTs.
 
