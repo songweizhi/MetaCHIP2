@@ -5,7 +5,7 @@
 Contact
 ---
 
-Dr. Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/Research-Assistant-Professor/Shan-ZHANG/Shan-ZHANG-Profile))<sup>1</sup> and Dr. Weizhi Song ([link](https://facultyprofiles.hkust.edu.hk/profiles.php?profile=weizhi-song-ocessongwz))<sup>2</sup>
+Dr. Shan Zhang ([link](https://www.pharma.hku.hk/en/Our-People/Professoriate-Staff/Research-Assistant-Professor/Shan-ZHANG/Shan-ZHANG-Profile))<sup>1</sup> and Dr. Weizhi Song <sup>2</sup>
 
 <sup>1</sup> Department of Pharmacology and Pharmacy, LKS Faculty of Medicine, The University of Hong Kong, Hong Kong
 
@@ -32,9 +32,11 @@ You can use MetaCHIP2's `tree` module to infer the species tree, This module wra
 If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
++ You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
+
 + The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
 
-+ You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
++ The output files are now organized more intuitively, making them easier to understand.
 
 + A changelog is [here](MetaCHIP2/VERSION).
 
@@ -50,7 +52,7 @@ Dependencies:
 [ETE3](http://etetoolkit.org).
 
 + Third-party software: 
-[GTDBTk](https://github.com/Ecogenomics/GTDBTk), 
+[GTDB-Tk](https://github.com/Ecogenomics/GTDBTk), 
 [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download),
 [MMseqs2](https://github.com/soedinglab/MMseqs2), 
 [MAFFT](https://mafft.cbrc.jp/alignment/software/),
@@ -61,7 +63,7 @@ Dependencies:
 Install MetaCHIP2 with Conda:
 ---
 
-+ As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-installed with GTDB-Tk.
++ As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-installed with GTDB-Tk. You'll need to setup the database files for GTDB-Tk as described in its [manual](https://ecogenomics.github.io/GTDBTk/installing/index.html#gtdb-tk-reference-data).
  
        conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.6.1
        conda activate metachip2env
@@ -132,6 +134,6 @@ Output files:
 1. Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**.
     ![Gene_flow](images/Gene_flow.jpg)
 
-   If you want to get gene flow plot for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. You can find the grouping file from MetaCHIP2's output directory.
+   If you want to visualize gene flow for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. The grouping file is in MetaCHIP2's output directory.
 
-       MetaCHIP2 circos -o circos_2.pdf -l detected_HGTs_subset.txt -g grouping.txt
+       MetaCHIP2 circos -l detected_HGTs_subset.txt -g grouping.txt -o interested_HGT_circos_plot.pdf
