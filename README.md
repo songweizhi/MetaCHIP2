@@ -132,8 +132,8 @@ Output files:
 1. Flanking regions of identified HGTs. Genes encoded on the forward strand are displayed in light blue, and genes coded on the reverse strand are displayed in light green. The name of genes predicted to be HGT are highlighted in blue, large font with pairwise identity given in parentheses. Contig names are provided at the left bottom of the sequence tracks and numbers following the contig name refer to the distances between the gene subject to HGT and either the left or right end of the contig. Red bars show similarities of the matched regions between the contigs based on BLASTN results.
     ![flanking_regions](images/flanking_regions.png)
  
-1. Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**.
-    ![Gene_flow](images/Gene_flow.jpg)
+1. Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**, band arrow points to the recipient.
+    ![Gene_flow](images/Gene_flow.png)
 
    If you want to visualize gene flow for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. The grouping file is in MetaCHIP2's output directory.
 
