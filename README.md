@@ -38,6 +38,8 @@ If you use your own way to get the species tree, please make sure that it is pro
 
 + The output files are now organized in a more intuitively way, making them easier to understand.
 
++ More detailed interpretation of the detection results, especially refers to the interpretation of the donor gene/genomes and the often observed low similarity between the donor and recipient genes.
+
 + A changelog is [here](MetaCHIP2/VERSION).
 
 
@@ -117,15 +119,23 @@ Output files:
 
 1. A Tab delimited text file (detected_HGTs.txt) containing all identified HGTs.
 
-    |Column|Description|
-    |---|---|
-    |Gene_1|The 1st gene involved in a HGT event|
-    |Gene_2|The 2nd gene involved in a HGT event|
-    |Identity|Identity between Gene_1 and Gene_2|
-    |Occurence(taxon_ranks)|Only for multiple-level detections. If you performed HGT detection at phylum, class and order levels, a number of "011" means current HGT was identified at class and order levels, but not phylum level.|
-    |End_match|End match or not (see examples below)|
-    |Full_length_match|Full length match or not (see examples below)|
-    |Direction|The direction of gene flow. Number in parenthesis refers to the percentage of this direction being observed if this HGT was detected at multiple ranks and different directions were provided by Ranger-DTL.
+    | Column                   |Description|
+    |--------------------------|---|
+    | Gene_1 <sup>[1]</sup>    |The 1st gene involved in a HGT event|
+    | Gene_2 <sup>[1]</sup>    |The 2nd gene involved in a HGT event|
+    | Identity <sup>[2]</sup>  |Identity between Gene_1 and Gene_2|
+    | Occurence(taxon_ranks)   |Only for multiple-level detections. If you performed HGT detection at phylum, class and order levels, a number of "011" means current HGT was identified at class and order levels, but not phylum level.|
+    | End_match                |End match or not (see examples below)|
+    | Full_length_match        |Full length match or not (see examples below)|
+    | Direction <sup>[3]</sup> |The direction of gene flow. Number in parenthesis refers to the percentage of this direction being observed if this HGT was detected at multiple ranks and different directions were provided by Ranger-DTL.
+    
+    :warning: Note:
+
+    [1] The most accurate interpretation of the "donor gene" is "the gene from the donor group of your input genomes that exhibits the highest similarity to the recipient gene". 
+
+    [2] A low similarity does not necessarily indicate it's an ancient gene transfer. Instead, it more likely reflects the absence of the exact donor organism (the organism that physically contributed the transferred gene) among your input genomes.
+
+    [3] Similar to the interpretation in [1], the donor genome is the genome within the donor group that contains the gene exhibiting the highest similarity to the recipient gene.
 
 1. Nucleotide and amino acid sequences of identified HGTs.
 
