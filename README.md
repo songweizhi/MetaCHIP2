@@ -38,7 +38,7 @@ If you use your own way to get the species tree, please make sure that it is pro
 
 + The output files are now organized in a more intuitively way, making them easier to understand.
 
-+ More detailed interpretation of the donor gene/genome, and the often-observed low similarities between the donor and recipient genes. Please see details in the "Output files" section. 
++ More detailed interpretation of the donor gene/genome, and the often-observed low similarities between the donor and recipient genes. Please see details below in the "Output files" section. 
 
 + A changelog is [here](MetaCHIP2/VERSION).
 
