@@ -67,7 +67,7 @@ Install MetaCHIP2 with Conda:
 
 + As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-installed with GTDB-Tk. You'll need to setup the database files for GTDB-Tk as described in its [manual](https://ecogenomics.github.io/GTDBTk/installing/index.html#gtdb-tk-reference-data).
  
-       conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.6.1
+       conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.5.2
        conda activate metachip2env
        pip install MetaCHIP2
        conda install -c bioconda blast
