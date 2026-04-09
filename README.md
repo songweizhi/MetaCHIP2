@@ -129,11 +129,11 @@ Output files:
     | Full_length_match        |Full length match or not (see examples below)|
     | Direction <sup>[3]</sup> |The direction of gene flow. Number in parenthesis refers to the percentage of this direction being observed if this HGT was detected at multiple ranks and different directions were provided by Ranger-DTL.
 
-    **[1]** The most accurate interpretation of the "donor gene" is "the gene from the donor group of your input genomes that exhibits the highest similarity to the recipient gene". 
+    <sup>[1]</sup> The most accurate interpretation of the "donor gene" is "the gene from the donor group of your input genomes that exhibits the highest similarity to the recipient gene". 
 
-    **[2]** A low similarity does not necessarily indicate it's an ancient gene transfer. Instead, it more likely reflects the absence of the exact donor organism (the organism that physically contributed the transferred gene) among your input genomes.
+    <sup>[2]</sup> A low similarity does not necessarily indicate it's an ancient gene transfer. Instead, it more likely reflects the absence of the exact donor organism (the organism that physically contributed the transferred gene) among your input genomes.
 
-    **[3]** Similar to the interpretation in [1], the donor genome is the genome within the donor group that contains the gene exhibiting the highest similarity to the recipient gene.
+    <sup>[3]</sup> Similar to the interpretation in [1], the donor genome is the genome within the donor group that contains the gene exhibiting the highest similarity to the recipient gene.
 
 1. Nucleotide and amino acid sequences of identified HGTs.
 
