@@ -67,15 +67,15 @@ Install MetaCHIP2 with Conda:
 
 + As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-installed with GTDB-Tk. You'll need to setup the database files for GTDB-Tk as described in its [manual](https://ecogenomics.github.io/GTDBTk/installing/index.html#gtdb-tk-reference-data).
  
-       conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.5.2
-       conda activate metachip2env
-       pip install MetaCHIP2
-       conda install -c bioconda blast
-       conda install -c bioconda mafft
-       conda install -c bioconda mmseqs2
-       conda install -c bioconda diamond
-       conda install -c conda-forge r-base
-       conda install -c conda-forge legacy-cgi
+      conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.5.2
+      conda activate metachip2env
+      pip install MetaCHIP2
+      conda install -c bioconda blast
+      conda install -c bioconda mafft
+      conda install -c bioconda mmseqs2
+      conda install -c bioconda diamond
+      conda install -c conda-forge r-base
+      conda install -c conda-forge legacy-cgi
 
 + Upgrade MetaCHIP2 with: `pip3 install --upgrade MetaCHIP2`
 
@@ -89,30 +89,30 @@ of the input genomes. File extension (e.g., gbk) of the input genomes should **N
 
 + Input files for MetaCHIP2 must be in GenBank format. You can use MetaCHIP2's `prokka` module to batch generate the .gbk files for all your input genomes. To prevent potential Prokka errors, please ensure that **contig IDs remain shorter than 18 characters**.
 
-       MetaCHIP2 prokka -h
+      MetaCHIP2 prokka -h
 
 + The user now need to provide a species tree for the input genome. You can use MetaCHIP2's `tree` module to infer the species tree, which wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
 If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
-       MetaCHIP2 tree -h
+      MetaCHIP2 tree -h
 
 + You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
        
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg -m
+      MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg -m
 
 + If you already have the all-vs-all blastn results on the same set of input genomes from a previous run, you can skip the blastn  by providing the blastn results with '-b'.
        
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r p -b path/to/previous/run/blastn_op
+      MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r p -b path/to/previous/run/blastn_op
 
 + GTDB-Tk is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
 
 + Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species):
 
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pco
-       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r ofg
+      MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg
+      MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pco
+      MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r ofg
 
 Output files:
 ---
@@ -147,4 +147,4 @@ Output files:
 
    If you want to visualize gene flow for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. The grouping file is in MetaCHIP2's output directory.
 
-       MetaCHIP2 circos -l detected_HGTs_subset.txt -g grouping.txt -o interested_HGT_circos_plot.pdf
+      MetaCHIP2 circos -l detected_HGTs_subset.txt -g grouping.txt -o interested_HGT_circos_plot.pdf
