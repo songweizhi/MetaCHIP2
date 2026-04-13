@@ -438,8 +438,11 @@ def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
     bp = ax.boxplot(input_df_mags, medianprops=median_line_props)
     ax.set_xticklabels(col_id_list_trimmed, rotation=label_rotation, fontsize=8, ha='left')
 
-    if hgt2_id is not None:
-        plt.title('Filled: %s, unfilled: %s' % (hgt1_id, hgt2_id))
+    if hgt2_id is None:
+        plt.title(hgt1_id)
+    else:
+        plt.title('Filled symbols: %s      Unfilled symbols: %s' % (hgt1_id, hgt2_id))
+
     plt.xlabel('COG category')
     plt.ylabel('Proportion')
 

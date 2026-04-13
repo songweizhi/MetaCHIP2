@@ -146,8 +146,6 @@ rm -r build dist MetaCHIP2.egg-info
 python3 setup.py sdist bdist_wheel
 twine upload dist/* --verbose
 
-__token__
-
 pip3 install --upgrade MetaCHIP2
 
 '''
