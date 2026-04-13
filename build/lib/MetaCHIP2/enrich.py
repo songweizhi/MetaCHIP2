@@ -17,19 +17,21 @@ import matplotlib.pyplot as plt
 enrich_usage = '''
 ============================== enrich example commands ==============================
 
-# This module was prepared to produce a plot as Fig. 9 in the MetaCHIP paper
+# This module was prepared to produce a plot similar to Fig. 9 in the MetaCHIP paper
 
-MetaCHIP2 enrich -faa faa_files -o demo_1HGT -db path_to/COG2020_db_dir -t 12 -hgt1 detected_HGTs.faa
-MetaCHIP2 enrich -faa faa_files -o demo_2HGT -db path_to/COG2020_db_dir -t 12 -hgt1 hgt1.faa -hgt2 hgt2.faa
+MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 detected_HGTs.faa
+MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 hgt1.faa -hgt2 hgt2.faa -label1 setting1 -label2 setting2
 
-# Prepare database files:
-mkdir COG2020_db_dir; cd COG2020_db_dir
-wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.fa.gz; gunzip cog-20.fa.gz
-wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.cog.csv
-wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/cog-20.def.tab
-wget https://ftp.ncbi.nih.gov/pub/COG/COG2020/data/fun-20.tab
-makeblastdb -in cog-20.fa -dbtype prot -parse_seqids
-diamond makedb --in cog-20.fa --db cog-20.fa.dmnd --quiet
+# Prepare DB files (version 2024):
+cd path/to/your/COG_db_dir
+wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/COGorg24.faa.gz 
+wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.cog.csv 
+wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.def.tab          
+wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.fun.tab           
+wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/Readme.COG2024.txt     
+gunzip COGorg24.faa.gz
+makeblastdb -in COGorg24.faa -dbtype prot -parse_seqids -logfile COGorg24.faa.log
+diamond makedb --in COGorg24.faa --db COGorg24.faa.dmnd --quiet
 
 =====================================================================================
 '''
@@ -84,7 +86,7 @@ def best_hit(file_in, file_out):
     file_out_handle.close()
 
 
-def COG2020_worker(argument_list):
+def COG2024_worker(argument_list):
 
     pwd_input_file =                    argument_list[0]
     pwd_prot2003_2014 =                 argument_list[1]
@@ -99,7 +101,7 @@ def COG2020_worker(argument_list):
     evalue_cutoff =                     argument_list[10]
 
     input_seq_no_path, input_seq_no_ext, input_seq_ext = sep_path_basename_ext(pwd_input_file)
-    current_output_folder = '%s/%s_COG2020_wd' % (output_folder, input_seq_no_ext)
+    current_output_folder = '%s/%s_COG2024_wd' % (output_folder, input_seq_no_ext)
 
     pwd_blastp_output =             '%s/%s_blastp.tab'                  % (current_output_folder, input_seq_no_ext)
     pwd_blastp_output_besthits =    '%s/%s_blastp_besthits.tab'         % (current_output_folder, input_seq_no_ext)
@@ -185,19 +187,20 @@ def COG2020_worker(argument_list):
     pwd_func_stats_GeneNumber_handle.close()
 
 
-def COG2020(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamond, evalue_cutoff, output_folder):
+def COG2024(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamond, evalue_cutoff, output_folder):
 
-    pwd_cog_20_fa           = '%s/cog-20.fa'         % DB_dir
-    pwd_cog_20_fa_diamond   = '%s/cog-20.fa.dmnd'    % DB_dir
-    pwd_cog_20_cog_csv      = '%s/cog-20.cog.csv'    % DB_dir
-    pwd_cog_20_def_tab      = '%s/cog-20.def.tab'    % DB_dir
-    pwd_fun_20_tab          = '%s/fun-20.tab'        % DB_dir
+    # for COG2024
+    pwd_cog_20_fa           = '%s/COGorg24.faa'         % DB_dir
+    pwd_cog_20_fa_diamond   = '%s/COGorg24.faa.dmnd'    % DB_dir
+    pwd_cog_csv             = '%s/cog-24.cog.csv'       % DB_dir
+    pwd_cog_def_tab         = '%s/cog-24.def.tab'       % DB_dir
+    pwd_fun_tab             = '%s/cog-24.fun.tab'       % DB_dir
 
     ############################################ check whether db file exist ###########################################
 
     # check whether db file exist
     unfound_inputs = []
-    for each_input in [pwd_cog_20_fa, pwd_cog_20_def_tab, pwd_fun_20_tab]:
+    for each_input in [pwd_cog_20_fa, pwd_cog_def_tab, pwd_fun_tab]:
         if (not os.path.isfile(each_input)) and (not os.path.isdir(each_input)):
             unfound_inputs.append(each_input)
     if len(unfound_inputs) > 0:
@@ -215,7 +218,7 @@ def COG2020(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
 
     # get protein_to_cog_dict (cog-20.cog.csv)
     protein_to_cog_dict = {}
-    for each_line in open(pwd_cog_20_cog_csv):
+    for each_line in open(pwd_cog_csv):
         each_line_split = each_line.strip().split(',')
         protein_id = each_line_split[2]
         protein_id_no_dot = '_'.join(protein_id.split('.'))
@@ -225,10 +228,10 @@ def COG2020(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
         else:
             protein_to_cog_dict[protein_id_no_dot].add(cog_id)
 
-    # get cog_id_to_category_dict and cog_id_to_description_dict (cognames2003-2014.tab)
+    # get cog_id_to_category_dict and cog_id_to_description_dict (cog-24.def.tab)
     cog_id_to_category_dict = {}
     cog_id_to_description_dict = {}
-    for cog_id_to_cate_des in open(pwd_cog_20_def_tab, encoding='windows-1252'):
+    for cog_id_to_cate_des in open(pwd_cog_def_tab, encoding='windows-1252'):
         if not cog_id_to_cate_des.startswith('#'):
             cog_id_to_cate_des_split = cog_id_to_cate_des.strip().split('\t')
             cog_id = cog_id_to_cate_des_split[0]
@@ -237,14 +240,15 @@ def COG2020(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
             cog_id_to_category_dict[cog_id] = cog_cate
             cog_id_to_description_dict[cog_id] = cog_des
 
-    # get cog_category_to_description_dict (fun2003-2014.tab)
+    # cog-24.fun.tab
     cog_category_list = []
     cog_category_to_description_dict = {}
-    for cog_category in open(pwd_fun_20_tab):
+    for cog_category in open(pwd_fun_tab):
         if not cog_category.startswith('#'):
             cog_category_split = cog_category.strip().split('\t')
-            cog_category_list.append(cog_category_split[0])
-            cog_category_to_description_dict[cog_category_split[0]] = cog_category_split[2][:15]
+            if len(cog_category_split) >= 3:
+                cog_category_list.append(cog_category_split[0])
+                cog_category_to_description_dict[cog_category_split[0]] = cog_category_split[-1]
 
     ################################################## if input is file ################################################
 
@@ -255,7 +259,7 @@ def COG2020(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
                 print(datetime.now().strftime(time_format) + 'specified depth file not found, program exited!')
                 exit()
 
-        COG2020_worker([file_in, pwd_cog_20_fa, protein_to_cog_dict, cog_id_to_category_dict, cog_id_to_description_dict,
+        COG2024_worker([file_in, pwd_cog_20_fa, protein_to_cog_dict, cog_id_to_category_dict, cog_id_to_description_dict,
                         cog_category_list, cog_category_to_description_dict, output_folder, num_threads, run_diamond, evalue_cutoff])
 
     ################################################ if input is folder ################################################
@@ -287,7 +291,7 @@ def COG2020(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
 
             # run COG annotaion files with multiprocessing
             pool = mp.Pool(processes=num_threads)
-            pool.map(COG2020_worker, list_for_multiple_arguments_COG)
+            pool.map(COG2024_worker, list_for_multiple_arguments_COG)
             pool.close()
             pool.join()
 
@@ -314,7 +318,7 @@ def boxplot_matrix_COG(input_folder, output_csv, in_percent, skip_1st_row, with_
     annotation_results_dict = {}
     cate_to_description_dict = {}
     for each_file in file_list:
-        genome_name = '_'.join(each_file.split('_')[:-2])
+        genome_name = '_'.join(each_file.split('_')[:-3])
         genome_name_list.append(genome_name)
         current_annotation_results_dict = {}
         n = 0
@@ -515,17 +519,20 @@ def enrich(args):
     evalue_cutoff   = args['e']
     force_overwrite = args['f']
     include_desc    = args['desc']
+    hgt1_label      = args['label1']
+    hgt2_label      = args['label2']
 
     # define file name
     fun_stats_dir           = '%s/fun_stats_files'          % op_dir
-    df_file                 = '%s/df_COG2020_fun_stats.txt' % op_dir
-    plot_file               = '%s/df_COG2020_fun_stats.pdf' % op_dir
+    df_file                 = '%s/df_COG2024_fun_stats.txt' % op_dir
+    plot_file               = '%s/df_COG2024_fun_stats.pdf' % op_dir
     cog_annotation_dir_faa  = '%s/COG_gnm'                  % op_dir
     cog_annotation_dir_hgt1 = '%s/COG_hgt1'                 % op_dir
     cog_annotation_dir_hgt2 = '%s/COG_hgt2'                 % op_dir
 
-    hgt1_base = '.'.join(hgt1_faa.split('.')[:-1])
-    hgt2_base = '.'.join(hgt2_faa.split('.')[:-1])
+    _, hgt1_base, _ = sep_path_basename_ext(hgt1_faa)
+    if hgt2_faa is not None:
+        _, hgt2_base, _ = sep_path_basename_ext(hgt2_faa)
 
     # create output folder
     if os.path.isdir(op_dir) is True:
@@ -547,26 +554,26 @@ def enrich(args):
 
     # annotate gnm
     os.mkdir(cog_annotation_dir_faa)
-    COG2020(file_in, file_ext, None, db_dir, num_threads, run_diamond, evalue_cutoff, cog_annotation_dir_faa)
+    COG2024(file_in, file_ext, None, db_dir, num_threads, run_diamond, evalue_cutoff, cog_annotation_dir_faa)
 
     # annotate hgt1
     os.mkdir(cog_annotation_dir_hgt1)
-    COG2020(hgt1_faa, '', None, db_dir, num_threads, run_diamond, evalue_cutoff, cog_annotation_dir_hgt1)
+    COG2024(hgt1_faa, '', None, db_dir, num_threads, run_diamond, evalue_cutoff, cog_annotation_dir_hgt1)
 
     # annotate hgt2
     if hgt2_faa is not None:
         os.mkdir(cog_annotation_dir_hgt2)
-        COG2020(hgt2_faa, '', None, db_dir, num_threads, run_diamond, evalue_cutoff, cog_annotation_dir_hgt2)
+        COG2024(hgt2_faa, '', None, db_dir, num_threads, run_diamond, evalue_cutoff, cog_annotation_dir_hgt2)
 
     # copy fun_stats files into fun_stats_dir
     os.mkdir(fun_stats_dir)
-    cp_cmd_faa  = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/'                              % (cog_annotation_dir_faa, fun_stats_dir)
-    cp_hgt1_faa = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/%s_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt1, fun_stats_dir, hgt1_base)
-    cp_hgt2_faa = 'cp %s/*_COG2020_wd/*_func_stats_GeneNumber.txt %s/%s_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt2, fun_stats_dir, hgt2_base)
+    cp_cmd_faa        = 'cp %s/*_COG2024_wd/*_func_stats_GeneNumber.txt %s/'                                    % (cog_annotation_dir_faa, fun_stats_dir)
+    cp_hgt1_func_stat = 'cp %s/%s_COG2024_wd/%s_func_stats_GeneNumber.txt %s/%s_func_stats_GeneNumber.txt'      % (cog_annotation_dir_hgt1, hgt1_base, hgt1_base, fun_stats_dir, hgt1_label)
     os.system(cp_cmd_faa)
-    os.system(cp_hgt1_faa)
+    os.system(cp_hgt1_func_stat)
     if hgt2_faa is not None:
-        os.system(cp_hgt2_faa)
+        cp_hgt2_func_stat = 'cp %s/%s_COG2024_wd/%s_func_stats_GeneNumber.txt %s/%s_func_stats_GeneNumber.txt'  % (cog_annotation_dir_hgt2, hgt2_base, hgt2_base, fun_stats_dir, hgt2_label)
+        os.system(cp_hgt2_func_stat)
 
     # get matrix command
     boxplot_matrix_COG(fun_stats_dir, df_file, True, True, include_desc)
@@ -574,9 +581,9 @@ def enrich(args):
     ################################################## get plot with R #################################################
 
     if hgt2_faa is None:
-        get_boxplot(df_file, hgt1_base, None, plot_file)
+        get_boxplot(df_file, hgt1_label, None, plot_file)
     else:
-        get_boxplot(df_file, hgt1_base, hgt2_base, plot_file)
+        get_boxplot(df_file, hgt1_label, hgt2_label, plot_file)
 
     print('Done!')
 
@@ -589,6 +596,8 @@ if __name__ == '__main__':
     enrich_parser.add_argument('-x',       required=False, default='faa',              help='file extension, default: faa')
     enrich_parser.add_argument('-hgt1',    required=True,                              help='amino acid sequences of HGTs, required')
     enrich_parser.add_argument('-hgt2',    required=False, default=None,               help='amino acid sequences of HGTs, e.g., predicted with a different approach, optional')
+    enrich_parser.add_argument('-label1',  required=False, default='hgt1',             help='label for -hgt1, default is hgt1')
+    enrich_parser.add_argument('-label2',  required=False, default='hgt2',             help='label for -hgt2, default is hgt2')
     enrich_parser.add_argument('-db',      required=True,                              help='COG_db_dir')
     enrich_parser.add_argument('-diamond', required=False, action='store_true',        help='run diamond (for big dataset), default is NCBI blastp')
     enrich_parser.add_argument('-t',       required=False, type=int, default=1,        help='number of threads')

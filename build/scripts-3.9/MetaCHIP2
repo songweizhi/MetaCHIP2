@@ -124,6 +124,8 @@ if __name__ == '__main__':
         enrich_parser.add_argument('-x',       required=False, default='faa',              help='file extension, default: faa')
         enrich_parser.add_argument('-hgt1',    required=True,                              help='amino acid sequences of HGTs, required')
         enrich_parser.add_argument('-hgt2',    required=False, default=None,               help='amino acid sequences of HGTs, e.g., predicted with a different approach, optional')
+        enrich_parser.add_argument('-label1',  required=False, default='hgt1',             help='label for hgt1, default is hgt1')
+        enrich_parser.add_argument('-label2',  required=False, default='hgt2',             help='label for hgt2, default is hgt2')
         enrich_parser.add_argument('-db',      required=True,                              help='COG_db_dir')
         enrich_parser.add_argument('-diamond', required=False, action='store_true',        help='run diamond (for big dataset), default is NCBI blastp')
         enrich_parser.add_argument('-t',       required=False, type=int, default=1,        help='number of threads')

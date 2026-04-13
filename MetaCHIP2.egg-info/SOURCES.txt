@@ -16,6 +16,7 @@ MetaCHIP2/detect.py
 MetaCHIP2/enrich.py
 MetaCHIP2/prokka.py
 MetaCHIP2/stats.py
+MetaCHIP2/tmp_1.py
 MetaCHIP2/tree.py
 bin/MetaCHIP2
 metachip2.egg-info/PKG-INFO
