@@ -146,3 +146,8 @@ Output files:
    If you want to visualize gene flow for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. The grouping file is in MetaCHIP2's output directory.
 
        MetaCHIP2 circos -l detected_HGTs_subset.txt -g grouping.txt -o interested_HGT_circos_plot.pdf
+
+1. Enrichment of COG functions in the detected HGTs (to produce a plot similar to Fig. 9 in the MetaCHIP paper)
+
+       MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 detected_HGTs.faa
+       MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 hgt1.faa -hgt2 hgt2.faa -label1 setting1 -label2 setting2
