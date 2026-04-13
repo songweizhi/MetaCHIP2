@@ -130,7 +130,6 @@ if __name__ == '__main__':
         enrich_parser.add_argument('-diamond', required=False, action='store_true',        help='run diamond (for big dataset), default is NCBI blastp')
         enrich_parser.add_argument('-t',       required=False, type=int, default=1,        help='number of threads')
         enrich_parser.add_argument('-e',       required=False, default=0.001, type=float,  help='evalue cutoff, default: 0.001')
-        enrich_parser.add_argument('-desc',    required=False, action='store_true',        help='include functional description in x-axis labels')
         enrich_parser.add_argument('-f',       required=False, action="store_true",        help='force overwrite')
         args = vars(parser.parse_args())
         enrich.enrich(args)

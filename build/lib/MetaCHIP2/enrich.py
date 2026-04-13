@@ -403,9 +403,18 @@ def subset_df(df_in, rows_to_keep, cols_to_keep):
 
 
 def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
-    label_rotation = 0
     input_df = pd.read_csv(data_matrix, sep=',', header=0, index_col=0)
     col_id_list = input_df.columns.values.tolist()
+
+    col_id_max_len = 0
+    for each_col_id in col_id_list:
+        if len(each_col_id) > col_id_max_len:
+            col_id_max_len = len(each_col_id)
+
+    label_rotation = 0
+    if col_id_max_len > 5:
+        label_rotation = 315
+
     row_id_list = input_df.index.to_list()
     mag_list = deepcopy(row_id_list)
     mag_list.remove(hgt1_id)
@@ -421,9 +430,10 @@ def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
     ax = fig.add_subplot(111)
     median_line_props = dict(color="black", linewidth=1.5)  # customise median line
     bp = ax.boxplot(input_df_mags, medianprops=median_line_props)
-    ax.set_xticklabels(col_id_list, rotation=label_rotation, fontsize=8)
+    ax.set_xticklabels(col_id_list, rotation=label_rotation, fontsize=8, ha='left')
 
-    plt.title('Filled: %s, unfilled: %s' % (hgt1_id, hgt2_id))
+    if hgt2_id is not None:
+        plt.title('Filled symbols: %s, unfilled symbols: %s' % (hgt1_id, hgt2_id))
     plt.xlabel('COG category')
     plt.ylabel('Proportion')
 
@@ -485,19 +495,15 @@ def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
 
     # add hgt1 points
     x_index = 1
-    for (hgt1_value, hgt1_shape, hgt1_color, hgt1_size) in zip(hgt1_value_list, hgt1_shape_list, hgt1_color_list,
-                                                               hgt1_size_list):
-        plt.plot(x_index, hgt1_value, alpha=1, marker=hgt1_shape, markersize=hgt1_size, markeredgewidth=1,
-                 color=hgt1_color)
+    for (hgt1_value, hgt1_shape, hgt1_color, hgt1_size) in zip(hgt1_value_list, hgt1_shape_list, hgt1_color_list, hgt1_size_list):
+        plt.plot(x_index, hgt1_value, alpha=1, marker=hgt1_shape, markersize=hgt1_size, markeredgewidth=1, color=hgt1_color)
         x_index += 1
 
     # add hgt2 points
     if hgt2_id is not None:
         x_index = 1
-        for (hgt2_value, hgt2_shape, hgt2_color, hgt2_size) in zip(hgt2_value_list, hgt2_shape_list, hgt2_color_list,
-                                                                   hgt2_size_list):
-            plt.plot(x_index, hgt2_value, alpha=1, marker=hgt2_shape, markersize=hgt2_size, markeredgewidth=1,
-                     color=hgt2_color, fillstyle='none')
+        for (hgt2_value, hgt2_shape, hgt2_color, hgt2_size) in zip(hgt2_value_list, hgt2_shape_list, hgt2_color_list, hgt2_size_list):
+            plt.plot(x_index, hgt2_value, alpha=1, marker=hgt2_shape, markersize=hgt2_size, markeredgewidth=1, color=hgt2_color, fillstyle='none')
             x_index += 1
 
     # export plot
@@ -543,14 +549,12 @@ def enrich(args):
             exit()
     os.mkdir(op_dir)
 
-
     # check input file
     if os.path.isfile(hgt1_faa) is False:
         print('file provided with -hgt1 not found, please double check')
     if hgt2_faa is not None:
         if os.path.isfile(hgt2_faa) is False:
             print('file provided with -hgt2 not found, please double check')
-
 
     # annotate gnm
     os.mkdir(cog_annotation_dir_faa)

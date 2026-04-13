@@ -149,13 +149,12 @@ twine upload dist/* --verbose
 
 __token__
 
-pip3 install --upgrade MetaCHIP2        
+pip3 install --upgrade MetaCHIP2
 
 '''
 
 '''
 When encounter the following error, try to replace name="MetaCHIP2" to name="metachip2" in the setup.py 
-
 HTTPError: 400 Bad Request from https://upload.pypi.org/legacy/
 Bad Request  
 '''

@@ -149,5 +149,5 @@ Output files:
 
 1. Enrichment of COG functions in the detected HGTs (to produce a plot similar to Fig. 9 in the MetaCHIP paper)
 
-       MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 detected_HGTs.faa
-       MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 hgt1.faa -hgt2 hgt2.faa -label1 setting1 -label2 setting2
+       MetaCHIP2 enrich -f -diamond -t 12 -faa faa_dir -o op_dir -db path/to/COG_db -hgt1 detected_HGTs.faa
+       MetaCHIP2 enrich -f -diamond -t 12 -faa faa_dir -o op_dir -db path/to/COG_db -hgt1 Setting1_HGTs.faa -hgt2 Setting2_HGTs.faa -label1 Setting1 -label2 Setting2
