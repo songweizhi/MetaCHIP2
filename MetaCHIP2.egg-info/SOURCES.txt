@@ -2,15 +2,12 @@ LICENSE.txt
 MANIFEST.in
 README.md
 setup.py
-MetaCHIP2/COG_boxplot_last1row.R
-MetaCHIP2/COG_boxplot_last2row.R
 MetaCHIP2/MetaCHIP2_config.py
 MetaCHIP2/Ranger-DTL.linux
 MetaCHIP2/Ranger-DTL.mac
 MetaCHIP2/RootTree.py
 MetaCHIP2/VERSION
 MetaCHIP2/__init__.py
-MetaCHIP2/add_group_to_tree.R
 MetaCHIP2/circos.py
 MetaCHIP2/detect.py
 MetaCHIP2/enrich.py

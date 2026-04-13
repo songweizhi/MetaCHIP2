@@ -19,11 +19,11 @@ enrich_usage = '''
 
 # This module was prepared to produce a plot similar to Fig. 9 in the MetaCHIP paper
 
-MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 detected_HGTs.faa
-MetaCHIP2 enrich -faa faa_files -o op_dir -db path/to/COG2024_db_dir -t 12 -hgt1 hgt1.faa -hgt2 hgt2.faa -label1 setting1 -label2 setting2
+MetaCHIP2 enrich -f -diamond -t 12 -faa faa_files -o op_dir -db path/to/COG_db -hgt1 detected_HGTs.faa
+MetaCHIP2 enrich -f -diamond -t 12 -faa faa_files -o op_dir -db path/to/COG_db -hgt1 Setting1_HGT.faa -hgt2 Setting2_HGT.faa -label1 Setting1 -label2 Setting2
 
 # Prepare DB files (version 2024):
-cd path/to/your/COG_db_dir
+cd path/to/your/COG_db
 wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/COGorg24.faa.gz 
 wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.cog.csv 
 wget https://ftp.ncbi.nlm.nih.gov/pub/COG/COG2024/data/cog-24.def.tab          
@@ -403,11 +403,17 @@ def subset_df(df_in, rows_to_keep, cols_to_keep):
 
 
 def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
+
     input_df = pd.read_csv(data_matrix, sep=',', header=0, index_col=0)
     col_id_list = input_df.columns.values.tolist()
 
     col_id_max_len = 0
+    col_id_list_trimmed = []
     for each_col_id in col_id_list:
+        each_col_id_trimmed = each_col_id
+        if len(each_col_id) > 20:
+            each_col_id_trimmed = each_col_id[:22] + '...'
+        col_id_list_trimmed.append(each_col_id_trimmed)
         if len(each_col_id) > col_id_max_len:
             col_id_max_len = len(each_col_id)
 
@@ -430,10 +436,10 @@ def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
     ax = fig.add_subplot(111)
     median_line_props = dict(color="black", linewidth=1.5)  # customise median line
     bp = ax.boxplot(input_df_mags, medianprops=median_line_props)
-    ax.set_xticklabels(col_id_list, rotation=label_rotation, fontsize=8, ha='left')
+    ax.set_xticklabels(col_id_list_trimmed, rotation=label_rotation, fontsize=8, ha='left')
 
     if hgt2_id is not None:
-        plt.title('Filled symbols: %s, unfilled symbols: %s' % (hgt1_id, hgt2_id))
+        plt.title('Filled: %s, unfilled: %s' % (hgt1_id, hgt2_id))
     plt.xlabel('COG category')
     plt.ylabel('Proportion')
 
@@ -445,11 +451,11 @@ def get_boxplot(data_matrix, hgt1_id, hgt2_id, output_plot):
     hgt1_value_list = []
     hgt1_shape_list = []
     hgt1_color_list = []
-    hgt1_size_list = []
+    hgt1_size_list  = []
     hgt2_value_list = []
     hgt2_shape_list = []
     hgt2_color_list = []
-    hgt2_size_list = []
+    hgt2_size_list  = []
     for col_id in col_id_list:
 
         hgt1_value = input_df_hgt1[col_id].values[0]
@@ -524,9 +530,9 @@ def enrich(args):
     run_diamond     = args['diamond']
     evalue_cutoff   = args['e']
     force_overwrite = args['f']
-    include_desc    = args['desc']
     hgt1_label      = args['label1']
     hgt2_label      = args['label2']
+    include_desc    = True
 
     # define file name
     fun_stats_dir           = '%s/fun_stats_files'          % op_dir
@@ -606,7 +612,6 @@ if __name__ == '__main__':
     enrich_parser.add_argument('-diamond', required=False, action='store_true',        help='run diamond (for big dataset), default is NCBI blastp')
     enrich_parser.add_argument('-t',       required=False, type=int, default=1,        help='number of threads')
     enrich_parser.add_argument('-e',       required=False, default=0.001, type=float,  help='evalue cutoff, default: 0.001')
-    enrich_parser.add_argument('-desc',    required=False, action='store_true',        help='include functional description in x-axis labels')
     enrich_parser.add_argument('-f',       required=False, action="store_true",        help='force overwrite')
     args = vars(enrich_parser.parse_args())
     enrich(args)
