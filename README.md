@@ -17,30 +17,30 @@ Email: shanbio@hku.hk, ocessongwz@ust.hk
 What has been changed:
 ---
 
-+ The input genomes to MetaCHIP2 must be in GenBank format. If your genomes are currently in FASTA format, you'll need 
+1. The input genomes to MetaCHIP2 must be in GenBank format. If your genomes are currently in FASTA format, you'll need 
 to perform an initial annotation step before feeding them to MetaCHIP2. You can use `MetaCHIP2 prokka` module to batch 
 generate the .gbk files for your input genomes.This pre-annotation strategy could: 
   1) bypass the need for repeated genome annotation when exploring MetaCHIP2 parameters, thereby reducing computational time. 
   2) minimize the introduction of variations from the annotation process itself, and thus 
   3) ensure better comparability of predictions between independent MetaCHIP2 runs (on the same set of input genomes).
 
-+ The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
+1. The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
 which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
 You can use `MetaCHIP2 tree` module to infer the species tree, This module wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 
-+ The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
+1. The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
 If you use `MetaCHIP2 tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
-+ The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
+1. The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
 
-+ You can now use `mmseqs linclust` (by specifying '-m' to the `MetaCHIP2 detect` module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
+1. You can now use `mmseqs linclust` (by specifying '-m' to the `MetaCHIP2 detect` module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
 
-+ The output files are now organized in a more intuitively way, making them easier to understand.
+1. The output files are now organized in a more intuitively way, making them easier to understand.
 
-+ More detailed interpretation of the donor gene/genome, and the often-observed low similarities between the donor and recipient genes. Please see details below in the "Output files" section. 
+1. More detailed interpretation of the donor gene/genome, and the often-observed low similarities between the donor and recipient genes. Please see details below in the "Output files" section. 
 
-+ A changelog is [here](MetaCHIP2/VERSION).
+1. A changelog is [here](MetaCHIP2/VERSION).
 
 
 Dependencies:
@@ -77,7 +77,7 @@ Install MetaCHIP2 with Conda:
       conda install -c conda-forge r-base
       conda install -c conda-forge legacy-cgi
 
-+ Upgrade MetaCHIP2 with: `pip3 install --upgrade MetaCHIP2`
++ Upgrade with: `pip3 install --upgrade MetaCHIP2`
 
 
 How to run:
@@ -117,7 +117,7 @@ If you use your own way to get the species tree, please make sure that it is pro
 Output files:
 ---
 
-1. A Tab delimited text file (detected_HGTs.txt) containing all identified HGTs.
++ A Tab delimited text file (detected_HGTs.txt) containing all identified HGTs.
 
     | Column                   |Description|
     |--------------------------|---|
@@ -135,19 +135,19 @@ Output files:
 
     <sup>[3]</sup> Similar to the interpretation in [1], the donor genome is the genome within the donor group that contains the gene exhibiting the highest similarity to the recipient gene.
 
-1. Nucleotide and amino acid sequences of identified HGTs.
++ Nucleotide and amino acid sequences of identified HGTs.
 
-1. Flanking regions of identified HGTs. Genes encoded on the forward strand are displayed in light blue, and genes coded on the reverse strand are displayed in light green. The name of genes predicted to be HGT are highlighted in blue, large font with pairwise identity given in parentheses. Contig names are provided at the left bottom of the sequence tracks and numbers following the contig name refer to the distances between the gene subject to HGT and either the left or right end of the contig. Red bars show similarities of the matched regions between the contigs based on BLASTN results.
++ Flanking regions of identified HGTs. Genes encoded on the forward strand are displayed in light blue, and genes coded on the reverse strand are displayed in light green. The name of genes predicted to be HGT are highlighted in blue, large font with pairwise identity given in parentheses. Contig names are provided at the left bottom of the sequence tracks and numbers following the contig name refer to the distances between the gene subject to HGT and either the left or right end of the contig. Red bars show similarities of the matched regions between the contigs based on BLASTN results.
     ![flanking_regions](images/flanking_regions.png)
  
-1. Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**, band arrow points to the recipient.
++ Gene flow between groups. Bands connect donors and recipients, with the width of the band correlating to the number of HGTs and **the colour corresponding to the donors**, band arrow points to the recipient.
     ![Gene_flow](images/Gene_flow.png)
 
    If you want to visualize gene flow for a subset of detected HGTs (e.g., HGTs belong to a specific functional group), you can subset the "detected_HGTs.txt" to keep only the interested HGTs and run the `circos` module. The grouping file is in MetaCHIP2's output directory.
 
        MetaCHIP2 circos -l detected_HGTs_subset.txt -g grouping.txt -o interested_HGT_circos_plot.pdf
 
-1. Enrichment of COG functions in the detected HGTs (to produce a plot similar to Fig. 9 in the MetaCHIP paper)
++ Enrichment of COG functions in the detected HGTs (to produce a plot similar to Fig. 9 in the MetaCHIP paper)
 
        MetaCHIP2 enrich -f -diamond -t 12 -faa faa_dir -o op_dir -db path/to/COG_db -hgt1 detected_HGTs.faa
        MetaCHIP2 enrich -f -diamond -t 12 -faa faa_dir -o op_dir -db path/to/COG_db -hgt1 Setting1_HGTs.faa -hgt2 Setting2_HGTs.faa -label1 Setting1 -label2 Setting2
