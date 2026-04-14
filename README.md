@@ -18,7 +18,7 @@ What has been changed:
 ---
 
 + The input genomes to MetaCHIP2 must be in GenBank format. If your genomes are currently in FASTA format, you'll need 
-to perform an initial annotation step before feeding them to MetaCHIP2. You can use MetaCHIP2's `prokka` module to batch 
+to perform an initial annotation step before feeding them to MetaCHIP2. You can use `MetaCHIP2 prokka` module to batch 
 generate the .gbk files for your input genomes.This pre-annotation strategy could: 
   1) bypass the need for repeated genome annotation when exploring MetaCHIP2 parameters, thereby reducing computational time. 
   2) minimize the introduction of variations from the annotation process itself, and thus 
@@ -26,15 +26,15 @@ generate the .gbk files for your input genomes.This pre-annotation strategy coul
 
 + The user now need to provide a species tree for the input genome. Again, this could avoid repeated tree inference, 
 which in turn leads to more consistent and comparable predictions between separate MetaCHIP2 runs on the same set of input genomes.
-You can use MetaCHIP2's `tree` module to infer the species tree, This module wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
+You can use `MetaCHIP2 tree` module to infer the species tree, This module wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 
 + The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
-If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
+If you use `MetaCHIP2 tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
 + The `PI` and `BP` modules in MetaCHIP has now been merged into a single module called `detect` in MetaCHIP2.
 
-+ You can now use `mmseqs linclust` (by specifying '-m' to the `detect `module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
++ You can now use `mmseqs linclust` (by specifying '-m' to the `MetaCHIP2 detect` module) to speed up the time-consuming all-vs-all blastn step in MetaCHIP2.
 
 + The output files are now organized in a more intuitively way, making them easier to understand.
 
@@ -87,18 +87,20 @@ How to run:
 or customized grouping ([example](https://github.com/songweizhi/MetaCHIP/blob/master/input_file_examples/customized_grouping.txt))
 of the input genomes. File extension (e.g., gbk) of the input genomes should **NOT** be included in the taxonomy or grouping file.
 
-+ Input files for MetaCHIP2 must be in GenBank format. You can use MetaCHIP2's `prokka` module to batch generate the .gbk files for all your input genomes. To prevent potential Prokka errors, please ensure that **contig IDs remain shorter than 18 characters**.
++ GTDB-Tk is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
 
-      MetaCHIP2 prokka -h
++ Input files for MetaCHIP2 must be in GenBank format. You can run `MetaCHIP2 prokka -h` to batch generate the .gbk files for your input genomes. To prevent potential Prokka errors, please ensure that **contig IDs remain shorter than 18 characters**.
 
-+ The user now need to provide a species tree for the input genome. You can use MetaCHIP2's `tree` module to infer the species tree, which wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
++ The user now need to provide a species tree for the input genome. You can run `MetaCHIP2 tree -h` to infer the species tree, which wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
-If you use MetaCHIP2's `tree` module for tree inference, the tree will be automatically rooted according to the GTDB taxonomy.
+If you use `MetaCHIP2 tree` for tree inference, the tree is automatically rooted according to the GTDB taxonomy.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
-      MetaCHIP2 tree -h
++ Now you are ready to detect HGTs among your input genomes.
+       
+      MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg
 
-+ You can now use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
++ You can use `mmseqs linclust` (by specifying '-m' to `detect `module) to speed up the time-consuming all-vs-all blastn step.
        
       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg -m
 
@@ -106,9 +108,7 @@ If you use your own way to get the species tree, please make sure that it is pro
        
       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r p -b path/to/previous/run/blastn_op
 
-+ GTDB-Tk is recommended for taxonomic classification of input genomes. Only the first two columns (user_genome and classification) are needed. 
-
-+ Options for argument '-r' in the `detect` modules can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species):
++ Options for argument '-r' can be any combinations of d (domain), p (phylum), c (class), o (order), f (family), g (genus) and s(species):
 
       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pcofg
       MetaCHIP2 detect -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -f -o op_dir -r pco
