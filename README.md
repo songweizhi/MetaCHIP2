@@ -131,7 +131,7 @@ Output files:
 
     <sup>[1]</sup> The most accurate interpretation of the "donor gene" is "the gene from the donor group of your input genomes that exhibits the highest similarity to the recipient gene". 
 
-    <sup>[2]</sup> A low similarity does not necessarily indicate it's an ancient gene transfer. Instead, it more likely reflects the absence of the exact donor organism (the organism that physically contributed the transferred gene) among your input genomes.
+    <sup>[2]</sup> A low similarity does not necessarily indicate it's an ancient gene transfer. Instead, it more likely reflects the absence of the exact donor organism (the organism that physically contributed the transferred gene) in the input genomes.
 
     <sup>[3]</sup> Similar to the interpretation in [1], the donor genome is the genome within the donor group that contains the gene exhibiting the highest similarity to the recipient gene.
 
