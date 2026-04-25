@@ -22,17 +22,11 @@ will first run "gtdbtk classify_wf" to classify your genomes.
 to combine the classification results for both the archaea and bacteria into a single file, for example: 
 cat gtdb.ar53.summary.tsv gtdb.bac120.summary.tsv > gnm_taxon.txt
 
-# prepare GTDB database files
-mkdir gtdbtk_db_dir
-cd gtdbtk_db_dir
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_r226.tree.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_r226.tree.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/ar53_metadata_r226.tsv.gz
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/release226/226.0/bac120_metadata_r226.tsv.gz
-gunzip ar53_r226.tree.gz
-gunzip bac120_r226.tree.gz
-gunzip ar53_metadata_r226.tsv.gz
-gunzip bac120_metadata_r226.tsv.gz
+# Need to download and decompress the following files to your database folder (provide with -db)
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/ar53_r232.tree.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/bac120_r232.tree.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/ar53_metadata_r232.tsv.gz
+https://data.gtdb.aau.ecogenomic.org/releases/release232/232.0/bac120_metadata_r232.tsv.gz
 
 ==========================================================================================================
 '''
@@ -93,6 +87,16 @@ def subset_and_rename_tree(tree_file_in, to_keep_leaf_list, rename_dict):
     return subset_tree
 
 
+def root_tree_at_middle_point(input_tree, tree_file_rooted):
+
+    tree = Tree(input_tree, quoted_node_names=True, format=1)
+    midpoint = tree.get_midpoint_outgroup()
+    tree.set_outgroup(midpoint)
+    tree_str = tree.write(format=1)
+    with open(tree_file_rooted, 'w') as f:
+        f.write(tree_str)
+
+
 def root_with_outgroup(input_tree, out_group_list, tree_file_rooted):
 
     """
@@ -114,27 +118,30 @@ def root_with_outgroup(input_tree, out_group_list, tree_file_rooted):
         else:
             ingroup_leaves.add(n)
 
-    # Since finding the MRCA is a rooted tree operation, the tree is first rerooted on an ingroup taxa. This
-    # ensures the MRCA of the outgroup can be identified so long as the outgroup is monophyletic. If the
-    # outgroup is polyphyletic trying to root on it is ill-defined. To try and pick a "good" root for
-    # polyphyletic outgroups, random ingroup taxa are selected until two of them give the same size
-    # lineage. This will, likely, be the smallest bipartition possible for the given outgroup though
-    # this is not guaranteed.
+    if len(outgroup_in_tree) > 0:
+        # Since finding the MRCA is a rooted tree operation, the tree is first rerooted on an ingroup taxa. This
+        # ensures the MRCA of the outgroup can be identified so long as the outgroup is monophyletic. If the
+        # outgroup is polyphyletic trying to root on it is ill-defined. To try and pick a "good" root for
+        # polyphyletic outgroups, random ingroup taxa are selected until two of them give the same size
+        # lineage. This will, likely, be the smallest bipartition possible for the given outgroup though
+        # this is not guaranteed.
 
-    mrca = tree.mrca(taxa=outgroup_in_tree)
-    mrca_leaves = len(mrca.leaf_nodes())
-    while True:
-        rnd_ingroup = random.sample(list(ingroup_leaves), 1)[0]
-        tree.reroot_at_edge(rnd_ingroup.edge, length1=0.5 * rnd_ingroup.edge_length, length2=0.5 * rnd_ingroup.edge_length)
         mrca = tree.mrca(taxa=outgroup_in_tree)
-        if len(mrca.leaf_nodes()) == mrca_leaves:
-            break
-
         mrca_leaves = len(mrca.leaf_nodes())
+        while True:
+            rnd_ingroup = random.sample(list(ingroup_leaves), 1)[0]
+            tree.reroot_at_edge(rnd_ingroup.edge, length1=0.5 * rnd_ingroup.edge_length, length2=0.5 * rnd_ingroup.edge_length)
+            mrca = tree.mrca(taxa=outgroup_in_tree)
+            if len(mrca.leaf_nodes()) == mrca_leaves:
+                break
 
-    if mrca.edge_length is not None:
-        tree.reroot_at_edge(mrca.edge, length1=0.5 * mrca.edge_length, length2=0.5 * mrca.edge_length)
-        tree.write_to_path(tree_file_rooted, schema='newick', suppress_rooting=True, unquoted_underscores=True)
+            mrca_leaves = len(mrca.leaf_nodes())
+
+        if mrca.edge_length is not None:
+            tree.reroot_at_edge(mrca.edge, length1=0.5 * mrca.edge_length, length2=0.5 * mrca.edge_length)
+            tree.write_to_path(tree_file_rooted, schema='newick', suppress_rooting=True, unquoted_underscores=True)
+    else:
+        root_tree_at_middle_point(input_tree, tree_file_rooted)
 
 
 def root_tree_by_gtdb(gtdb_ref_tree, gtdb_gnm_metadata, user_gnm_taxon, user_gnm_tree, user_tree_rooted, gnm_domain):
@@ -203,9 +210,11 @@ def root_tree_by_gtdb(gtdb_ref_tree, gtdb_gnm_metadata, user_gnm_taxon, user_gnm
         rooting_rank = 'g'
         rooting_rank_taxon_dict = user_gnm_taxon_dict_g
 
-    if rooting_rank == '':
-        print('All user genomes are from the same genus, program exited!')
-        exit()
+    # if rooting_rank == '':
+    #     if gnm_domain == 'ar':
+    #         print('Archaeal genomes are from the same genus, the archaeal tree will be rooted at middle point')
+    #     elif gnm_domain == 'bac':
+    #         print('Bacterial genomes are from the same genus, the bacterial tree will be rooted at middle point')
 
     col_index = {}
     canditate_gnms_rooting_rank = dict()
@@ -401,7 +410,7 @@ def tree(args):
 
         # run classify_wf
         print('running gtdbtk classify_wf')
-        cmd_classify_wd = 'gtdbtk classify_wf --prefix metachip2 --cpus %s --pplacer_cpus 1 --skip_ani_screen --genome_dir %s --extension %s --out_dir %s --prefix gtdb > %s' % (num_threads, input_gnm_dir, file_extension, tmp_dir, gtdbtk_classify_wf_stdout_txt)
+        cmd_classify_wd = 'gtdbtk classify_wf --prefix metachip2 --cpus %s --pplacer_cpus 1 --genome_dir %s --extension %s --out_dir %s --prefix gtdb > %s' % (num_threads, input_gnm_dir, file_extension, tmp_dir, gtdbtk_classify_wf_stdout_txt)
         with open(log_txt, 'a') as log_txt_handle:
             log_txt_handle.write(cmd_classify_wd + '\n')
         os.system(cmd_classify_wd)
@@ -454,9 +463,9 @@ def tree(args):
 
     ######################################## root tree ########################################
 
-    print('Rooting inferred tree based on GTDB (r214) reference tree')
+    print('Rooting inferred tree based on GTDB reference tree')
     with open(log_txt, 'a') as log_txt_handle:
-        log_txt_handle.write('Root tree based on GTDB\n')
+        log_txt_handle.write('Root tree based on GTDB reference tree\n')
 
     tax_file_to_use = gnm_tax_txt
     if gnm_tax_txt is None:

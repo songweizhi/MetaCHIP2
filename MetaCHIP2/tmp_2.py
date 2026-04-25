@@ -210,11 +210,6 @@ def root_tree_by_gtdb(gtdb_ref_tree, gtdb_gnm_metadata, user_gnm_taxon, user_gnm
         rooting_rank = 'g'
         rooting_rank_taxon_dict = user_gnm_taxon_dict_g
 
-    # if rooting_rank == '':
-    #     if gnm_domain == 'ar':
-    #         print('Archaeal genomes are from the same genus, the archaeal tree will be rooted at middle point')
-    #     elif gnm_domain == 'bac':
-    #         print('Bacterial genomes are from the same genus, the bacterial tree will be rooted at middle point')
 
     col_index = {}
     canditate_gnms_rooting_rank = dict()
@@ -285,7 +280,6 @@ def root_tree_by_gtdb(gtdb_ref_tree, gtdb_gnm_metadata, user_gnm_taxon, user_gnm
 
 
 def concat_trees(tree_file_1, tree_file_2, concatenated_tree):
-
     tree1 = Tree(tree_file_1)
     tree2 = Tree(tree_file_2)
     tree1_with_root = Tree()
@@ -336,160 +330,13 @@ def RootTree(db_dir, user_gnm_taxon, user_gnm_tree_bac, user_gnm_tree_ar, rooted
         concat_trees(rooted_tree_bac, rooted_tree_ar, rooted_tree_combined)
 
 
-def tree(args):
+db_dir                  = '/Users/songweizhi/DB/GTDB/r232'
+tax_file_to_use         = '/Users/songweizhi/Desktop/666/refined_bin_renamed_20260112_GTDB_r232.ar53_bac120.summary.tsv'
+inferred_bac120_tree    = '/Users/songweizhi/Desktop/666/bac120.unrooted.tree'
+inferred_ar53_tree      = '/Users/songweizhi/Desktop/666/ar53.unrooted.tree'
+user_tree_rooted_bac    = '/Users/songweizhi/Desktop/666/bac120.rooted.tree'
+user_tree_rooted_ar     = '/Users/songweizhi/Desktop/666/ar53.rooted.tree'
+user_tree_rooted        = '/Users/songweizhi/Desktop/666/combined.rooted.tree'
 
-    input_gnm_dir   = args['i']
-    file_extension  = args['x']
-    output_dir      = args['o']
-    num_threads     = args['t']
-    force_overwrite = args['f']
-    db_dir          = args['db']
-    gnm_tax_txt     = args['c']
+RootTree(db_dir, tax_file_to_use, inferred_bac120_tree, inferred_ar53_tree, user_tree_rooted_bac, user_tree_rooted_ar, user_tree_rooted)
 
-    ######################################## define file name ########################################
-
-    gtdb_ref_tree_ar_re             = '%s/ar*_r*.tree'                              % db_dir
-    gtdb_ref_tree_bac_re            = '%s/bac*_r*.tree'                             % db_dir
-    gtdb_gnm_meta_ar_re             = '%s/ar*_metadata_r*.tsv'                      % db_dir
-    gtdb_gnm_meta_bac_re            = '%s/bac*_metadata_r*.tsv'                     % db_dir
-    gtdb_ref_tree_ar                = glob.glob(gtdb_ref_tree_ar_re)[0]
-    gtdb_ref_tree_bac               = glob.glob(gtdb_ref_tree_bac_re)[0]
-    gtdb_gnm_meta_ar                = glob.glob(gtdb_gnm_meta_ar_re)[0]
-    gtdb_gnm_meta_bac               = glob.glob(gtdb_gnm_meta_bac_re)[0]
-    tmp_dir                         = '%s/tmp'                                      % output_dir
-    gtdb_ar53_summary_tsv           = '%s/gtdb.ar53.summary.tsv'                    % tmp_dir
-    gtdb_bac120_summary_tsv         = '%s/gtdb.bac120.summary.tsv'                  % tmp_dir
-    msa_bac120_gz                   = '%s/align/metachip2.bac120.user_msa.fasta.gz' % tmp_dir
-    msa_bac120                      = '%s/align/metachip2.bac120.user_msa.fasta'    % tmp_dir
-    msa_ar53_gz                     = '%s/align/metachip2.ar53.user_msa.fasta.gz'   % tmp_dir
-    msa_ar53                        = '%s/align/metachip2.ar53.user_msa.fasta'      % tmp_dir
-    inferred_bac120_tree            = '%s/bac120.unrooted.tree'                     % tmp_dir
-    inferred_ar53_tree              = '%s/ar53.unrooted.tree'                       % tmp_dir
-    gtdbtk_classify_wf_stdout_txt   = '%s/gtdbtk_classify_wf.log'                   % tmp_dir
-    gtdbtk_identify_stdout_txt      = '%s/gtdbtk_identify.log'                      % tmp_dir
-    gtdbtk_align_stdout_txt         = '%s/gtdbtk_align.log'                         % tmp_dir
-    gtdbtk_infer_bac_stdout_txt     = '%s/gtdbtk_infer_bac.log'                     % tmp_dir
-    gtdbtk_infer_ar_stdout_txt      = '%s/gtdbtk_infer_ar.log'                      % tmp_dir
-    user_tree_rooted_bac            = '%s/rooted_species_tree_bac.tree'             % tmp_dir
-    user_tree_rooted_ar             = '%s/rooted_species_tree_ar.tree'              % tmp_dir
-    user_tree_rooted                = '%s/rooted_species_tree.tree'                 % output_dir
-    gtdb_summary_tsv                = '%s/gtdbtk_classifications.tsv'               % output_dir
-    log_txt                         = '%s/log.txt'                                  % output_dir
-
-    ######################################### check db files #########################################
-
-    # check dependencies
-    check_dependencies(['gtdbtk', 'hmmsearch', 'pplacer'])
-
-    # check whether db file exist
-    unfound_inputs = []
-    for each_input in [gtdb_ref_tree_ar, gtdb_ref_tree_bac, gtdb_gnm_meta_ar, gtdb_gnm_meta_bac]:
-        if (not os.path.isfile(each_input)) and (not os.path.isdir(each_input)):
-            unfound_inputs.append(each_input)
-    if len(unfound_inputs) > 0:
-        for each_unfound in unfound_inputs:
-            print('%s not found' % each_unfound)
-        exit()
-    print('Database files found!')
-
-    ##################################################################################################
-
-    # create output folder
-    if (os.path.isdir(output_dir) is True) and (force_overwrite is False):
-        print('Output folder detected, program exited: %s' % output_dir)
-        exit()
-    else:
-        if os.path.isdir(output_dir) is True:
-            os.system('rm -r %s' % output_dir)
-        os.mkdir(output_dir)
-        os.mkdir(tmp_dir)
-
-    ##################################################################################################
-
-    if gnm_tax_txt is None:
-
-        # run classify_wf
-        print('running gtdbtk classify_wf')
-        cmd_classify_wd = 'gtdbtk classify_wf --prefix metachip2 --cpus %s --pplacer_cpus 1 --genome_dir %s --extension %s --out_dir %s --prefix gtdb > %s' % (num_threads, input_gnm_dir, file_extension, tmp_dir, gtdbtk_classify_wf_stdout_txt)
-        with open(log_txt, 'a') as log_txt_handle:
-            log_txt_handle.write(cmd_classify_wd + '\n')
-        os.system(cmd_classify_wd)
-
-        if (os.path.isfile(gtdb_ar53_summary_tsv) is True) and (os.path.isfile(gtdb_bac120_summary_tsv) is True):
-            os.system('cat %s %s > %s' % (gtdb_ar53_summary_tsv, gtdb_bac120_summary_tsv, gtdb_summary_tsv))
-        elif (os.path.isfile(gtdb_ar53_summary_tsv) is True) and (os.path.isfile(gtdb_bac120_summary_tsv) is False):
-            os.system('cat %s > %s' % (gtdb_ar53_summary_tsv, gtdb_summary_tsv))
-        elif (os.path.isfile(gtdb_ar53_summary_tsv) is False) and (os.path.isfile(gtdb_bac120_summary_tsv) is True):
-            os.system('cat %s > %s' % (gtdb_bac120_summary_tsv, gtdb_summary_tsv))
-        else:
-            print('No classification results detected, program exited!')
-            print('There is something wrong with gtdbtk, please makes sure it has been installed successfully')
-            exit()
-
-    else:
-        # run gtdb identify
-        print('running gtdbtk identify')
-        cmd_identify = 'gtdbtk identify --prefix metachip2 --genome_dir %s -x %s --out_dir %s --cpus %s > %s' % (input_gnm_dir, file_extension, tmp_dir, num_threads, gtdbtk_identify_stdout_txt)
-        with open(log_txt, 'a') as log_txt_handle:
-            log_txt_handle.write(cmd_identify + '\n')
-        os.system(cmd_identify)
-
-        # run gtdbtk align
-        print('running gtdbtk align')
-        cmd_align = 'gtdbtk align --prefix metachip2 --identify_dir %s --out_dir %s --cpus %s > %s' % (tmp_dir, tmp_dir, num_threads, gtdbtk_align_stdout_txt)
-        with open(log_txt, 'a') as log_txt_handle:
-            log_txt_handle.write(cmd_align + '\n')
-        os.system(cmd_align)
-
-    # infer tree
-    if (os.path.isfile(msa_bac120_gz) is False) and (os.path.isfile(msa_ar53_gz) is False):
-        print('Both %s and %s are not found, program exited!' % (msa_bac120_gz, msa_ar53_gz))
-        print('There is something wrong with gtdbtk, please makes sure it has been installed successfully')
-        exit()
-
-    # infer bac tree
-    if os.path.isfile(msa_bac120_gz) is True:
-        cmd_infer_bac120 = 'gunzip %s; gtdbtk infer --prefix metachip2 --msa_file %s --out_dir %s --cpus %s --prefix bac120 > %s' % (msa_bac120_gz, msa_bac120, tmp_dir, num_threads, gtdbtk_infer_bac_stdout_txt)
-        with open(log_txt, 'a') as log_txt_handle:
-            log_txt_handle.write(cmd_infer_bac120.replace('; ', '\n') + '\n')
-        os.system(cmd_infer_bac120)
-
-    # infer ar tree
-    if os.path.isfile(msa_ar53_gz) is True:
-        cmd_infer_ar53 = 'gunzip %s; gtdbtk infer --prefix metachip2 --msa_file %s --out_dir %s --cpus %s --prefix ar53 > %s' % (msa_ar53_gz, msa_ar53, tmp_dir, num_threads, gtdbtk_infer_ar_stdout_txt)
-        with open(log_txt, 'a') as log_txt_handle:
-            log_txt_handle.write(cmd_infer_ar53.replace('; ', '\n') + '\n')
-        os.system(cmd_infer_ar53)
-
-    ######################################## root tree ########################################
-
-    print('Rooting inferred tree based on GTDB reference tree')
-    with open(log_txt, 'a') as log_txt_handle:
-        log_txt_handle.write('Root tree based on GTDB reference tree\n')
-
-    tax_file_to_use = gnm_tax_txt
-    if gnm_tax_txt is None:
-        tax_file_to_use = gtdb_summary_tsv
-    RootTree(db_dir, tax_file_to_use, inferred_bac120_tree, inferred_ar53_tree, user_tree_rooted_bac, user_tree_rooted_ar, user_tree_rooted)
-
-    ######################################### report ##########################################
-
-    print('Inferred tree exported to: %s' % user_tree_rooted)
-    if gnm_tax_txt is None:
-        print('Taxon classifications exported to: %s' % gtdb_summary_tsv)
-        print('Both files are needed for running "MetaCHIP2 detect"')
-    print('Done!')
-
-
-if __name__ == '__main__':
-
-    tree_parser = argparse.ArgumentParser(usage=tree_usage)
-    tree_parser.add_argument('-i',  required=True,                          help='genome folder')
-    tree_parser.add_argument('-x',  required=False, default='fna',          help='genome file extension, default: fna')
-    tree_parser.add_argument('-c',  required=False, default=None,           help='taxonomic classification of input genomes')
-    tree_parser.add_argument('-o',  required=True,                          help='output folder')
-    tree_parser.add_argument('-db', required=True,                          help='GTDB database files')
-    tree_parser.add_argument('-t',  required=False, type=int, default=1,    help='number of threads')
-    tree_parser.add_argument('-f',  required=False, action="store_true",    help='force overwrite existing results')
-    args = vars(tree_parser.parse_args())
-    tree(args)

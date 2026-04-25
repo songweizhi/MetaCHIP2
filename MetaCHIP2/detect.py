@@ -24,6 +24,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Graphics import GenomeDiagram
 from Bio.SeqFeature import FeatureLocation
 from Bio.Graphics.GenomeDiagram import CrossLink
+from circos import pycircos
 warnings.filterwarnings("ignore")
 
 
@@ -1331,23 +1332,6 @@ def get_circos_matrix(grouping_file, detected_hgts_txt, hgt_matrix):
             num_list.append(str(hgt_num))
         hgt_matrix_handle.write('\t'.join(num_list) + '\n')
     hgt_matrix_handle.close()
-
-
-def pycircos(data_matrix, sep_symbol, plot_out):
-
-    matrix_df = pd.read_csv(data_matrix, sep=sep_symbol, header=0, index_col=0)
-    circos = Circos.initialize_from_matrix(matrix_df,
-                                           start=-265,          # Plot start degree (-360 <= start < end <= 360)
-                                           end=95,              # Plot end degree (-360 <= start < end <= 360)
-                                           space=3,             # Space degree(s) between sector
-                                           r_lim=(90, 95),      # Outer track radius limit region (0 - 100)
-                                           cmap="tab10",        # Colormap assigned to each outer track and link.
-                                           order='desc',        # asc, desc; sort in ascending(or descending) order by node size.
-                                           ticks_interval=2,    # Ticks interval. If None, ticks are not plotted.
-                                           label_kws=dict(size=9, orientation="vertical"),
-                                           link_kws=dict(direction=1, color='white', ec="black", lw=0))
-    fig = circos.plotfig()
-    fig.savefig(plot_out, dpi=100)
 
 
 def unique_list_elements(list_input):

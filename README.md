@@ -67,7 +67,7 @@ Install MetaCHIP2 with Conda:
 
 + As MetaCHIP2 requires GTDB-Tk, we'll create a Conda environment pre-installed with GTDB-Tk. You'll need to setup the database files for GTDB-Tk as described in its [manual](https://ecogenomics.github.io/GTDBTk/installing/index.html#gtdb-tk-reference-data).
  
-      conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.5.2
+      conda create -n metachip2env -c conda-forge -c bioconda gtdbtk=2.7.1
       conda activate metachip2env
       pip install MetaCHIP2
       conda install -c bioconda blast
@@ -93,7 +93,7 @@ of the input genomes. File extension (e.g., gbk) of the input genomes should **N
 
 + The user now need to provide a species tree for the input genome. You can run `MetaCHIP2 tree -h` to infer the species tree, which wraps GTDB-Tk's `identify`, `align`, and `infer` functionalities.
 The inferred species tree must be rooted, as required by Ranger-DTL (one of MetaCHIP2's dependency). 
-If you use `MetaCHIP2 tree` for tree inference, the tree is automatically rooted according to the GTDB taxonomy.
+If you use `MetaCHIP2 tree` for tree inference, the tree is automatically rooted according to the GTDB taxonomy. If all genomes on the species tree are from the same genus, `MetaCHIP2 tree` will root it at middle point.
 If you use your own way to get the species tree, please make sure that it is properly rooted.
 
 + Now you are ready to detect HGTs among your input genomes.
