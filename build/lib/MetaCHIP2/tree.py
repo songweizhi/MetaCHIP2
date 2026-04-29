@@ -286,8 +286,8 @@ def root_tree_by_gtdb(gtdb_ref_tree, gtdb_gnm_metadata, user_gnm_taxon, user_gnm
 
 def concat_trees(tree_file_1, tree_file_2, concatenated_tree):
 
-    tree1 = Tree(tree_file_1)
-    tree2 = Tree(tree_file_2)
+    tree1 = Tree(tree_file_1, quoted_node_names=True, format=1)
+    tree2 = Tree(tree_file_2, quoted_node_names=True, format=1)
     tree1_with_root = Tree()
     tree2_with_root = Tree()
     tree1_with_root.add_child(tree1)
@@ -295,7 +295,7 @@ def concat_trees(tree_file_1, tree_file_2, concatenated_tree):
     concat_tree = Tree()
     concat_tree.add_child(tree1_with_root)
     concat_tree.add_child(tree2_with_root)
-    concat_tree.write(outfile=concatenated_tree, format=1)
+    concat_tree.write(outfile=concatenated_tree, quoted_node_names=True, format=1)
 
 
 def RootTree(db_dir, user_gnm_taxon, user_gnm_tree_bac, user_gnm_tree_ar, rooted_tree_bac, rooted_tree_ar, rooted_tree_combined):

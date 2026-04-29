@@ -16,6 +16,8 @@ MetaCHIP2/stats.py
 MetaCHIP2/tmp_1.py
 MetaCHIP2/tmp_2.py
 MetaCHIP2/tmp_3.py
+MetaCHIP2/tmp_4.py
+MetaCHIP2/tmp_5.py
 MetaCHIP2/tree.py
 bin/MetaCHIP2
 metachip2.egg-info/PKG-INFO

@@ -24,7 +24,6 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Graphics import GenomeDiagram
 from Bio.SeqFeature import FeatureLocation
 from Bio.Graphics.GenomeDiagram import CrossLink
-from circos import pycircos
 warnings.filterwarnings("ignore")
 
 
@@ -38,6 +37,25 @@ MetaCHIP2 detect -o op_dir -i gbk_dir -x gbk -c taxon.tsv -s rooted.tree -t 12 -
 
 =========================================================================================================
 '''
+
+
+def pycircos(data_matrix, sep_symbol, plot_out):
+
+    matrix_df = pd.read_csv(data_matrix, sep=sep_symbol, header=0, index_col=0)
+    tick_interval = round((matrix_df.max()).max()/20)*5                      # get tick interval
+    circos = Circos.initialize_from_matrix(matrix_df,
+                                           start=-265,                      # Plot start degree (-360 <= start < end <= 360)
+                                           end=95,                          # Plot end degree (-360 <= start < end <= 360)
+                                           space=3,                         # Space degree(s) between sector
+                                           r_lim=(90, 95),                  # Outer track radius limit region (0 - 100)
+                                           cmap="tab10",                    # Colormap assigned to each outer track and link.
+                                           order='desc',                    # asc, desc; sort in ascending(or descending) order by node size.
+                                           ticks_interval=tick_interval,    # Ticks interval. If None, ticks are not plotted.
+                                           ticks_kws=dict(label_size=9, label_orientation="vertical"), # font size of tick labels
+                                           label_kws=dict(size=9, orientation="vertical"),
+                                           link_kws=dict(direction=1, color='white', ec="black", lw=0))
+    fig = circos.plotfig()
+    fig.savefig(plot_out, dpi=100)
 
 
 class BinRecord(object):
@@ -999,7 +1017,7 @@ def export_HGT_query_to_subjects(pwd_BM_HGTs, pwd_blast_subjects_in_one_line, pw
 
 
 def subset_tree(tree_file_in, leaf_node_list, tree_file_out):
-    tree_in = Tree(tree_file_in, format=0)
+    tree_in = Tree(tree_file_in, quoted_node_names=True, format=1)
     tree_in.prune(leaf_node_list, preserve_branch_length=True)
     tree_in.write(format=0, outfile=tree_file_out)
 
@@ -1187,12 +1205,12 @@ def Ranger_worker(arg_list):
         remove_hyphen_from_branch_length(pwd_gene_tree_newick, pwd_gene_tree_newick_no_hyphen_in_branch_length, 'newick')
 
         # read in species tree
-        species_tree = Tree(pwd_species_tree_newick_no_hyphen_in_branch_length, format=0)
+        species_tree = Tree(pwd_species_tree_newick_no_hyphen_in_branch_length, quoted_node_names=True, format=1)
         species_tree.resolve_polytomy(recursive=True)  # solving multifurcations
         species_tree.convert_to_ultrametric()  # for dated mode
 
         # read in gene tree
-        gene_tree = Tree(pwd_gene_tree_newick_no_hyphen_in_branch_length, format=0)
+        gene_tree = Tree(pwd_gene_tree_newick_no_hyphen_in_branch_length, quoted_node_names=True, format=1)
         gene_tree.resolve_polytomy(recursive=True)  # solving multifurcations
 
         ################################################################################################################
