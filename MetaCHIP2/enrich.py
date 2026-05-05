@@ -88,17 +88,51 @@ def best_hit(file_in, file_out):
 
 def COG2024_worker(argument_list):
 
-    pwd_input_file =                    argument_list[0]
-    pwd_prot2003_2014 =                 argument_list[1]
-    protein_id_to_cog_id_dict =         argument_list[2]
-    cog_id_to_category_dict =           argument_list[3]
-    cog_id_to_description_dict =        argument_list[4]
-    cog_category_list =                 argument_list[5]
-    cog_category_to_description_dict =  argument_list[6]
-    output_folder =                     argument_list[7]
-    thread_num =                        argument_list[8]
-    run_diamond =                       argument_list[9]
-    evalue_cutoff =                     argument_list[10]
+    pwd_input_file      = argument_list[0]
+    pwd_prot2003_2014   = argument_list[1]
+    pwd_cog_csv         = argument_list[2]
+    pwd_cog_def_tab     = argument_list[3]
+    pwd_fun_tab         = argument_list[4]
+    output_folder       = argument_list[5]
+    thread_num          = argument_list[6]
+    run_diamond         = argument_list[7]
+    evalue_cutoff       = argument_list[8]
+
+    # get protein_id_to_cog_id_dict
+    protein_id_to_cog_id_dict = {}
+    for each_line in open(pwd_cog_csv):
+        each_line_split = each_line.strip().split(',')
+        protein_id = each_line_split[2]
+        protein_id_no_dot = '_'.join(protein_id.split('.'))
+        cog_id = each_line_split[6]
+        if protein_id_no_dot not in protein_id_to_cog_id_dict:
+            protein_id_to_cog_id_dict[protein_id_no_dot] = {cog_id}
+        else:
+            protein_id_to_cog_id_dict[protein_id_no_dot].add(cog_id)
+
+    # get cog_id_to_category_dict and cog_id_to_description_dict (cog-24.def.tab)
+    cog_id_to_category_dict = {}
+    cog_id_to_description_dict = {}
+    for cog_id_to_cate_des in open(pwd_cog_def_tab, encoding='windows-1252'):
+        if not cog_id_to_cate_des.startswith('#'):
+            cog_id_to_cate_des_split = cog_id_to_cate_des.strip().split('\t')
+            cog_id = cog_id_to_cate_des_split[0]
+            cog_cate = cog_id_to_cate_des_split[1]
+            cog_des = cog_id_to_cate_des_split[2]
+            cog_id_to_category_dict[cog_id] = cog_cate
+            cog_id_to_description_dict[cog_id] = cog_des
+
+    # cog-24.fun.tab
+    cog_category_list = []
+    cog_category_to_description_dict = {}
+    for cog_category in open(pwd_fun_tab):
+        if not cog_category.startswith('#'):
+            cog_category_split = cog_category.strip().split('\t')
+            if len(cog_category_split) >= 3:
+                cog_category_list.append(cog_category_split[0])
+                cog_category_to_description_dict[cog_category_split[0]] = cog_category_split[-1]
+
+    ####################################################################################################################
 
     input_seq_no_path, input_seq_no_ext, input_seq_ext = sep_path_basename_ext(pwd_input_file)
     current_output_folder = '%s/%s_COG2024_wd' % (output_folder, input_seq_no_ext)
@@ -214,42 +248,6 @@ def COG2024(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
             print('Program exited!')
             exit()
 
-    ################################################# read db into dict ################################################
-
-    # get protein_to_cog_dict (cog-20.cog.csv)
-    protein_to_cog_dict = {}
-    for each_line in open(pwd_cog_csv):
-        each_line_split = each_line.strip().split(',')
-        protein_id = each_line_split[2]
-        protein_id_no_dot = '_'.join(protein_id.split('.'))
-        cog_id = each_line_split[6]
-        if protein_id_no_dot not in protein_to_cog_dict:
-            protein_to_cog_dict[protein_id_no_dot] = {cog_id}
-        else:
-            protein_to_cog_dict[protein_id_no_dot].add(cog_id)
-
-    # get cog_id_to_category_dict and cog_id_to_description_dict (cog-24.def.tab)
-    cog_id_to_category_dict = {}
-    cog_id_to_description_dict = {}
-    for cog_id_to_cate_des in open(pwd_cog_def_tab, encoding='windows-1252'):
-        if not cog_id_to_cate_des.startswith('#'):
-            cog_id_to_cate_des_split = cog_id_to_cate_des.strip().split('\t')
-            cog_id = cog_id_to_cate_des_split[0]
-            cog_cate = cog_id_to_cate_des_split[1]
-            cog_des = cog_id_to_cate_des_split[2]
-            cog_id_to_category_dict[cog_id] = cog_cate
-            cog_id_to_description_dict[cog_id] = cog_des
-
-    # cog-24.fun.tab
-    cog_category_list = []
-    cog_category_to_description_dict = {}
-    for cog_category in open(pwd_fun_tab):
-        if not cog_category.startswith('#'):
-            cog_category_split = cog_category.strip().split('\t')
-            if len(cog_category_split) >= 3:
-                cog_category_list.append(cog_category_split[0])
-                cog_category_to_description_dict[cog_category_split[0]] = cog_category_split[-1]
-
     ################################################## if input is file ################################################
 
     # if input is file
@@ -259,8 +257,7 @@ def COG2024(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
                 print(datetime.now().strftime(time_format) + 'specified depth file not found, program exited!')
                 exit()
 
-        COG2024_worker([file_in, pwd_cog_20_fa, protein_to_cog_dict, cog_id_to_category_dict, cog_id_to_description_dict,
-                        cog_category_list, cog_category_to_description_dict, output_folder, num_threads, run_diamond, evalue_cutoff])
+        COG2024_worker([file_in, pwd_cog_20_fa, pwd_cog_csv, pwd_cog_def_tab, pwd_fun_tab, output_folder, num_threads, run_diamond, evalue_cutoff])
 
     ################################################ if input is folder ################################################
 
@@ -286,8 +283,7 @@ def COG2024(file_in, file_extension, depth_file, DB_dir, num_threads, run_diamon
             list_for_multiple_arguments_COG = []
             for input_file in input_file_name_list:
                 pwd_input_file = '%s/%s' % (file_in, input_file)
-                list_for_multiple_arguments_COG.append([pwd_input_file, pwd_cog_20_fa, protein_to_cog_dict, cog_id_to_category_dict, cog_id_to_description_dict,
-                                                        cog_category_list, cog_category_to_description_dict, output_folder, 1, run_diamond, evalue_cutoff])
+                list_for_multiple_arguments_COG.append([pwd_input_file, pwd_cog_20_fa, pwd_cog_csv, pwd_cog_def_tab, pwd_fun_tab, output_folder, 1, run_diamond, evalue_cutoff])
 
             # run COG annotaion files with multiprocessing
             pool = mp.Pool(processes=num_threads)
